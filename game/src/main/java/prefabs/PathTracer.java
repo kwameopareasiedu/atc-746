@@ -16,6 +16,7 @@ public class PathTracer extends Entity {
   private static final double SQUARED_DISTANCE_THRESHOLD = 4096;
 
   private final List<Vector> points = new ArrayList<>();
+  private boolean enabled = true;
 
   private PathTracer() {
     super("Path Tracer");
@@ -25,8 +26,14 @@ public class PathTracer extends Entity {
     return INSTANCE;
   }
 
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
+
   @Override
   protected void update() {
+    if (!enabled) return;
+
     if (Input.isButtonDown(Input.BUTTON_LMB) && points.isEmpty()) {
       Position mousePos = Input.getMousePosition();
       Vector pos = Camera.screenToWorldPosition(mousePos.x, mousePos.y);

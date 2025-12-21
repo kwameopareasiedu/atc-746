@@ -2,7 +2,10 @@ package scenes;
 
 import dev.gamekit.core.Renderer;
 import dev.gamekit.core.Scene;
-import dev.gamekit.ui.widgets.*;
+import dev.gamekit.ui.widgets.Center;
+import dev.gamekit.ui.widgets.Text;
+import dev.gamekit.ui.widgets.TextConfig;
+import dev.gamekit.ui.widgets.Widget;
 import prefabs.PathTracer;
 
 import java.awt.*;
