@@ -1,5 +1,6 @@
 import dev.gamekit.core.Application;
 import dev.gamekit.settings.*;
+import scenes.TestScene;
 
 public class ATC746 extends Application {
   public ATC746() {
@@ -9,13 +10,15 @@ public class ATC746 extends Application {
         Resolution.FULL_HD,
         Antialiasing.ON,
         TextAntialiasing.ON,
-        RenderingStrategy.QUALITY
+        RenderingStrategy.QUALITY,
+        WindowMode.BORDERLESS
       )
     );
   }
 
   public static void main(String[] args) {
     final ATC746 game = new ATC746();
+    game.loadScene(new TestScene());
     game.run();
   }
 }
