@@ -2,6 +2,7 @@ package models;
 
 import dev.gamekit.animation.Animation;
 import dev.gamekit.components.CircleCollider;
+import dev.gamekit.components.Collider;
 import dev.gamekit.components.RigidBody;
 import dev.gamekit.components.Transform;
 import dev.gamekit.core.*;
@@ -15,8 +16,14 @@ import java.util.List;
 
 public abstract class Craft extends Entity {
   public static boolean TRACING_ENABLED = true;
+  protected static final int BODY_COLLIDER_LAYER_MASK = 0b01;
+  protected static final int PROXIMITY_SENSOR_LAYER_MASK = 0b10;
+  protected static final String BODY_COLLIDER_TAG = "body";
+  protected static final String PROXIMITY_SENSOR_TAG = "proximity";
   private static final double SQUARED_WAYPOINT_MARK_THRESHOLD = 256;
   private static final double SQUARED_MIN_WAYPOINT_DISTANCE_THRESHOLD = 600;
+
+  protected final Host host;
 
   private final List<Vector> waypoints = new ArrayList<>();
   private final Vector desiredVelocity = new Vector();
@@ -26,8 +33,9 @@ public abstract class Craft extends Entity {
   private boolean tracingPath = false;
   private int waypointIndex = 0;
 
-  public Craft(String name, Vector initialPosition, double initialHeading) {
+  public Craft(String name, Vector initialPosition, double initialHeading, Host host) {
     super(name);
+    this.host = host;
     this.initialPosition.set(initialPosition);
     desiredVelocity.set(Vector.from(getMoveSpeed(), initialHeading));
     velocity.set(desiredVelocity);
@@ -36,10 +44,20 @@ public abstract class Craft extends Entity {
   @Override
   protected final List<Component> getComponents() {
     RigidBody rb = new RigidBody();
-    CircleCollider proximitySensor = new CircleCollider(128);
+    rb.setGravityScale(0);
+
+    CircleCollider proximitySensor = new CircleCollider(256);
 
     proximitySensor.setOffset(0, -12);
     proximitySensor.setSensor(true);
+    proximitySensor.setMetaData(PROXIMITY_SENSOR_TAG);
+    proximitySensor.setCollisionFilter(PROXIMITY_SENSOR_LAYER_MASK, BODY_COLLIDER_LAYER_MASK);
+    proximitySensor.setCollisionListener(new Physics.CollisionListener() {
+      @Override
+      public void onCollisionEnter(Collider otherCollider) {
+        host.onCraftNearMiss();
+      }
+    });
 
     List<Component> components = new ArrayList<>();
     setupAdditionalComponents(components);
@@ -69,18 +87,15 @@ public abstract class Craft extends Entity {
       Vector currentWaypoint = waypoints.get(waypointIndex);
 
       if (Vector.squaredDistance(pos, currentWaypoint) <= SQUARED_MIN_WAYPOINT_DISTANCE_THRESHOLD) {
-        logger.debug("Moving to next waypoint: {} of {}", waypointIndex + 1, waypoints.size());
         waypointIndex++;
 
         if (waypointIndex == waypoints.size()) {
           waypointOpacityAnimation = new Animation(1000);
-          logger.debug("Starting animation");
 
           waypointOpacityAnimation.setStateListener(state -> {
             if (state == Animation.State.ENDED && waypointOpacityAnimation.getValue() >= 1) {
               waypoints.clear();
               waypointOpacityAnimation = null;
-              logger.debug("Animation callback");
             }
           });
 
@@ -147,4 +162,10 @@ public abstract class Craft extends Entity {
   protected abstract double getMoveSpeed();
 
   protected abstract double getTurnSpeed();
+
+  public interface Host {
+    void onCraftNearMiss();
+
+    void onCraftCrash();
+  }
 }
