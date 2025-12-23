@@ -1,4 +1,4 @@
-package prefabs;
+package entities.crafts;
 
 import dev.gamekit.components.BoxCollider;
 import dev.gamekit.components.Collider;
@@ -7,7 +7,7 @@ import dev.gamekit.core.Component;
 import dev.gamekit.core.IO;
 import dev.gamekit.core.Physics;
 import dev.gamekit.utils.Vector;
-import models.Craft;
+import utils.Physic;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -30,24 +30,28 @@ public class Plane extends Craft {
 
     bodyCollider.setSensor(true);
     bodyCollider.setOffset(0, -12);
-    bodyCollider.setMetaData(BODY_COLLIDER_TAG);
-    bodyCollider.setCollisionFilter(BODY_COLLIDER_LAYER_MASK, BODY_COLLIDER_LAYER_MASK | PROXIMITY_SENSOR_LAYER_MASK);
+    bodyCollider.setMetaData(Physic.Tag.CRAFT_BODY);
+    bodyCollider.setCollisionFilter(Physic.CategoryMask.CRAFT_BODY, Physic.CollisionMask.CRAFT_BODY);
     bodyCollider.setCollisionListener(new Physics.CollisionListener() {
       @Override
       public void onCollisionEnter(Collider otherCollider) {
-        if (otherCollider.getMetaData().equals(BODY_COLLIDER_TAG))
+        if (otherCollider.getMetaData().equals(Physic.Tag.CRAFT_BODY))
           host.onCraftCrash();
+        else if (otherCollider.getMetaData().equals(Physic.Tag.DESTROYER))
+          destroy();
       }
     });
 
     bodyCollider.setSensor(true);
-    wingCollider.setMetaData(BODY_COLLIDER_TAG);
-    wingCollider.setCollisionFilter(BODY_COLLIDER_LAYER_MASK, BODY_COLLIDER_LAYER_MASK | PROXIMITY_SENSOR_LAYER_MASK);
+    wingCollider.setMetaData(Physic.Tag.CRAFT_BODY);
+    wingCollider.setCollisionFilter(Physic.CategoryMask.CRAFT_BODY, Physic.CollisionMask.CRAFT_BODY);
     wingCollider.setCollisionListener(new Physics.CollisionListener() {
       @Override
       public void onCollisionEnter(Collider otherCollider) {
-        if (otherCollider.getMetaData().equals(BODY_COLLIDER_TAG))
+        if (otherCollider.getMetaData().equals(Physic.Tag.CRAFT_BODY))
           host.onCraftCrash();
+        else if (otherCollider.getMetaData().equals(Physic.Tag.DESTROYER))
+          destroy();
       }
     });
 

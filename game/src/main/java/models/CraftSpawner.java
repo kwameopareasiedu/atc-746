@@ -1,15 +1,15 @@
-package prefabs;
+package models;
 
 import dev.gamekit.core.Application;
 import dev.gamekit.settings.Resolution;
 import dev.gamekit.utils.Bounds;
 import dev.gamekit.utils.Vector;
-import models.Craft;
+import entities.crafts.Craft;
 
 import java.util.Random;
 
 public class CraftSpawner {
-  private static final double EDGE_OFFSET = 7;
+  private static final double EDGE_OFFSET = 128;
 
   private final Craft.Host craftHost;
   private final SpawnRegion[] spawnRegions;

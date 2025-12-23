@@ -1,4 +1,4 @@
-package models;
+package entities.crafts;
 
 import dev.gamekit.animation.Animation;
 import dev.gamekit.components.CircleCollider;
@@ -9,6 +9,7 @@ import dev.gamekit.core.*;
 import dev.gamekit.core.Component;
 import dev.gamekit.utils.Position;
 import dev.gamekit.utils.Vector;
+import utils.Physic;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -16,10 +17,6 @@ import java.util.List;
 
 public abstract class Craft extends Entity {
   public static boolean TRACING_ENABLED = true;
-  protected static final int BODY_COLLIDER_LAYER_MASK = 0b01;
-  protected static final int PROXIMITY_SENSOR_LAYER_MASK = 0b10;
-  protected static final String BODY_COLLIDER_TAG = "body";
-  protected static final String PROXIMITY_SENSOR_TAG = "proximity";
   private static final double SQUARED_WAYPOINT_MARK_THRESHOLD = 256;
   private static final double SQUARED_MIN_WAYPOINT_DISTANCE_THRESHOLD = 600;
 
@@ -50,8 +47,8 @@ public abstract class Craft extends Entity {
 
     proximitySensor.setOffset(0, -12);
     proximitySensor.setSensor(true);
-    proximitySensor.setMetaData(PROXIMITY_SENSOR_TAG);
-    proximitySensor.setCollisionFilter(PROXIMITY_SENSOR_LAYER_MASK, BODY_COLLIDER_LAYER_MASK);
+    proximitySensor.setMetaData(Physic.Tag.CRAFT_PROXIMITY);
+    proximitySensor.setCollisionFilter(Physic.CategoryMask.CRAFT_PROXIMITY, Physic.CollisionMask.CRAFT_PROXIMITY);
     proximitySensor.setCollisionListener(new Physics.CollisionListener() {
       @Override
       public void onCollisionEnter(Collider otherCollider) {

@@ -5,9 +5,10 @@ import dev.gamekit.components.RigidBody;
 import dev.gamekit.core.Application;
 import dev.gamekit.core.Renderer;
 import dev.gamekit.core.Scene;
-import models.Craft;
-import prefabs.CraftSpawner;
-import prefabs.Plane;
+import entities.CraftDestroyer;
+import entities.crafts.Craft;
+import entities.crafts.Plane;
+import models.CraftSpawner;
 
 import java.awt.*;
 
@@ -25,6 +26,7 @@ public class TestScene extends Scene implements Craft.Host {
 
   @Override
   protected void start() {
+    addChild(new CraftDestroyer());
     Application.getInstance().scheduleTask(() -> addChild(craftSpawner.spawnCraft()), 2500);
     Application.getInstance().scheduleTask(() -> addChild(craftSpawner.spawnCraft()), 3500);
   }
