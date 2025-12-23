@@ -4,6 +4,7 @@ import dev.gamekit.components.BoxCollider;
 import dev.gamekit.components.Sprite;
 import dev.gamekit.core.Component;
 import dev.gamekit.core.IO;
+import dev.gamekit.utils.Vector;
 import models.Craft;
 
 import java.awt.image.BufferedImage;
@@ -12,8 +13,8 @@ import java.util.List;
 public class Plane extends Craft {
   private static final BufferedImage SPRITE = IO.getResourceImage("plane.png");
 
-  public Plane() {
-    super("Plane");
+  public Plane(Vector initialPosition, double initialHeading) {
+    super("Plane", initialPosition, initialHeading);
   }
 
   @Override
@@ -37,6 +38,6 @@ public class Plane extends Craft {
 
   @Override
   protected double getTurnSpeed() {
-    return 0.015;
+    return 0.025;
   }
 }

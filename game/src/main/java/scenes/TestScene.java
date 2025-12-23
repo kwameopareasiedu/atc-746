@@ -2,13 +2,17 @@ package scenes;
 
 import dev.gamekit.components.Collider;
 import dev.gamekit.components.RigidBody;
+import dev.gamekit.core.Application;
 import dev.gamekit.core.Renderer;
 import dev.gamekit.core.Scene;
+import prefabs.CraftSpawner;
 import prefabs.Plane;
 
 import java.awt.*;
 
 public class TestScene extends Scene {
+  private final CraftSpawner craftSpawner = new CraftSpawner(Plane::new);
+
   public TestScene() {
     super("Test Scene");
 
@@ -18,7 +22,7 @@ public class TestScene extends Scene {
 
   @Override
   protected void start() {
-    addChild(new Plane());
+    Application.getInstance().scheduleTask(() -> addChild(craftSpawner.spawnCraft()), 2500);
   }
 
   @Override

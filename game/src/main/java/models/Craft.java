@@ -1,5 +1,6 @@
 package models;
 
+import dev.gamekit.animation.Animation;
 import dev.gamekit.components.CircleCollider;
 import dev.gamekit.components.RigidBody;
 import dev.gamekit.components.Transform;
@@ -19,66 +20,17 @@ public abstract class Craft extends Entity {
 
   private final List<Vector> waypoints = new ArrayList<>();
   private final Vector desiredVelocity = new Vector();
-  private final Vector velocity = new Vector(0, getMoveSpeed());
+  private final Vector initialPosition = new Vector();
+  private final Vector velocity = new Vector();
+  private Animation waypointOpacityAnimation;
   private boolean tracingPath = false;
   private int waypointIndex = 0;
 
-  public Craft(String name) {
+  public Craft(String name, Vector initialPosition, double initialHeading) {
     super(name);
-  }
-
-  @Override
-  protected void update() {
-    Transform tx = findComponent(Transform.class);
-    RigidBody rb = findComponent(RigidBody.class);
-
-    velocity.lerpAngle(desiredVelocity, getTurnSpeed());
-    rb.setLinearVelocity(velocity.x * getMoveSpeed(), velocity.y * getMoveSpeed());
-    rb.setRotation(velocity.getAngle());
-
-    if (waypointIndex < waypoints.size()) {
-      Vector pos = tx.getGlobalPosition();
-      Vector currentWaypoint = waypoints.get(waypointIndex);
-
-      if (Vector.squaredDistance(pos, currentWaypoint) <= SQUARED_MIN_WAYPOINT_DISTANCE_THRESHOLD) {
-        logger.debug("Moving to next waypoint");
-        waypointIndex++;
-      } else {
-        Vector vel = new Vector(currentWaypoint.x - pos.x, currentWaypoint.y - pos.y).getNormalized();
-        desiredVelocity.set(vel.x, vel.y);
-      }
-    } else {
-      waypoints.clear();
-    }
-
-    if (Input.isButtonDown(Input.BUTTON_LMB) && TRACING_ENABLED) {
-      Position mousePos = Input.getMousePosition();
-      Vector pos = Camera.screenToWorldPosition(mousePos.x, mousePos.y);
-
-      if (rb.containsPoint(pos)) {
-        waypoints.clear();
-        waypoints.add(new Vector(pos));
-        tracingPath = true;
-        waypointIndex = 0;
-      }
-    }
-
-    if (Input.isButtonPressed(Input.BUTTON_LMB) && TRACING_ENABLED && tracingPath) {
-      Vector lastPos = waypoints.get(waypoints.size() - 1);
-
-      if (lastPos != null) {
-        Position mousePos = Input.getMousePosition();
-        Vector pos = Camera.screenToWorldPosition(mousePos.x, mousePos.y);
-
-        if (Vector.squaredDistance(pos, lastPos) >= SQUARED_WAYPOINT_MARK_THRESHOLD) {
-          waypoints.add(new Vector(pos));
-        }
-      }
-    }
-
-    if (Input.isButtonReleased(Input.BUTTON_LMB)) {
-      tracingPath = false;
-    }
+    this.initialPosition.set(initialPosition);
+    desiredVelocity.set(Vector.from(getMoveSpeed(), initialHeading));
+    velocity.set(desiredVelocity);
   }
 
   @Override
@@ -98,6 +50,84 @@ public abstract class Craft extends Entity {
   }
 
   @Override
+  protected void start() {
+    RigidBody rb = findComponent(RigidBody.class);
+    rb.setPosition(initialPosition.x, initialPosition.y);
+  }
+
+  @Override
+  protected void update() {
+    Transform tx = findComponent(Transform.class);
+    RigidBody rb = findComponent(RigidBody.class);
+
+    velocity.lerpAngle(desiredVelocity, getTurnSpeed());
+    rb.setLinearVelocity(velocity.x * getMoveSpeed(), velocity.y * getMoveSpeed());
+    rb.setRotation(velocity.getAngle());
+
+    if (waypointIndex < waypoints.size()) {
+      Vector pos = tx.getGlobalPosition();
+      Vector currentWaypoint = waypoints.get(waypointIndex);
+
+      if (Vector.squaredDistance(pos, currentWaypoint) <= SQUARED_MIN_WAYPOINT_DISTANCE_THRESHOLD) {
+        logger.debug("Moving to next waypoint: {} of {}", waypointIndex + 1, waypoints.size());
+        waypointIndex++;
+
+        if (waypointIndex == waypoints.size()) {
+          waypointOpacityAnimation = new Animation(1000);
+          logger.debug("Starting animation");
+
+          waypointOpacityAnimation.setStateListener(state -> {
+            if (state == Animation.State.ENDED && waypointOpacityAnimation.getValue() >= 1) {
+              waypoints.clear();
+              waypointOpacityAnimation = null;
+              logger.debug("Animation callback");
+            }
+          });
+
+          waypointOpacityAnimation.start();
+        }
+      } else {
+        Vector vel = new Vector(currentWaypoint.x - pos.x, currentWaypoint.y - pos.y).getNormalized();
+        desiredVelocity.set(vel.x, vel.y);
+      }
+    }
+
+    if (Input.isButtonDown(Input.BUTTON_LMB) && TRACING_ENABLED) {
+      Position mousePos = Input.getMousePosition();
+      Vector pos = Camera.screenToWorldPosition(mousePos.x, mousePos.y);
+
+      if (rb.containsPoint(pos)) {
+        waypoints.clear();
+        waypoints.add(new Vector(pos));
+        tracingPath = true;
+        waypointIndex = 0;
+      }
+    }
+
+    if (Input.isButtonPressed(Input.BUTTON_LMB) && TRACING_ENABLED && tracingPath && !waypoints.isEmpty()) {
+      Vector lastPos = waypoints.get(waypoints.size() - 1);
+
+      if (waypointOpacityAnimation != null && !waypointOpacityAnimation.isEnded())
+        waypointOpacityAnimation.end();
+
+      waypointOpacityAnimation = null;
+
+      if (lastPos != null) {
+        Position mousePos = Input.getMousePosition();
+        Vector pos = Camera.screenToWorldPosition(mousePos.x, mousePos.y);
+
+        if (Vector.squaredDistance(pos, lastPos) >= SQUARED_WAYPOINT_MARK_THRESHOLD) {
+          waypoints.add(new Vector(pos));
+        }
+      }
+    }
+
+    if (Input.isButtonReleased(Input.BUTTON_LMB)) {
+      tracingPath = false;
+    }
+  }
+
+  @Override
   protected void render() {
     if (!waypoints.isEmpty()) {
       for (int i = 0; i < waypoints.size() - 1; i++) {
@@ -105,7 +135,9 @@ public abstract class Craft extends Entity {
         Vector pos2 = waypoints.get(i + 1);
         Color lineColor = waypointIndex <= i ? Color.CYAN : Color.DARK_GRAY;
 
-        Renderer.drawLine((int) pos1.x, (int) pos1.y, (int) pos2.x, (int) pos2.y).withColor(lineColor);
+        Renderer.drawLine((int) pos1.x, (int) pos1.y, (int) pos2.x, (int) pos2.y)
+          .withOpacity(waypointOpacityAnimation != null ? 1.0 - waypointOpacityAnimation.getValue() : 1)
+          .withColor(lineColor);
       }
     }
   }
