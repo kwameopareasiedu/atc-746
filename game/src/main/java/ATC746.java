@@ -10,8 +10,7 @@ public class ATC746 extends Application {
         Resolution.FULL_HD,
         Antialiasing.ON,
         TextAntialiasing.ON,
-        RenderingStrategy.QUALITY,
-        WindowMode.BORDERLESS
+        RenderingStrategy.QUALITY
       )
     );
   }
