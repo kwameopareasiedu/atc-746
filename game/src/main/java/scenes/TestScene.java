@@ -5,20 +5,19 @@ import dev.gamekit.components.RigidBody;
 import dev.gamekit.core.Application;
 import dev.gamekit.core.Renderer;
 import dev.gamekit.core.Scene;
-import entities.CraftDestroyer;
+import entities.Enclosure;
 import entities.crafts.Craft;
 import entities.crafts.Plane;
-import models.CraftSpawner;
 
 import java.awt.*;
 
 public class TestScene extends Scene implements Craft.Host {
-  private final CraftSpawner craftSpawner;
+  private final Enclosure enclosure;
 
   public TestScene() {
     super("Test Scene");
 
-    craftSpawner = new CraftSpawner(this, Plane::new);
+    enclosure = new Enclosure(this, Plane::new);
 
     RigidBody.DEBUG_DRAW = true;
     Collider.DEBUG_DRAW = true;
@@ -26,9 +25,9 @@ public class TestScene extends Scene implements Craft.Host {
 
   @Override
   protected void start() {
-    addChild(new CraftDestroyer());
-    Application.getInstance().scheduleTask(() -> addChild(craftSpawner.spawnCraft()), 2500);
-    Application.getInstance().scheduleTask(() -> addChild(craftSpawner.spawnCraft()), 3500);
+    addChild(enclosure);
+    Application.getInstance().scheduleTask(() -> addChild(enclosure.spawnCraft()), 2500);
+    Application.getInstance().scheduleTask(() -> addChild(enclosure.spawnCraft()), 3500);
   }
 
   @Override

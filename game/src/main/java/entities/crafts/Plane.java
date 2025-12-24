@@ -37,8 +37,6 @@ public class Plane extends Craft {
       public void onCollisionEnter(Collider otherCollider) {
         if (otherCollider.getMetaData().equals(Physic.Tag.CRAFT_BODY))
           host.onCraftCrash();
-        else if (otherCollider.getMetaData().equals(Physic.Tag.DESTROYER))
-          destroy();
       }
     });
 
@@ -50,8 +48,6 @@ public class Plane extends Craft {
       public void onCollisionEnter(Collider otherCollider) {
         if (otherCollider.getMetaData().equals(Physic.Tag.CRAFT_BODY))
           host.onCraftCrash();
-        else if (otherCollider.getMetaData().equals(Physic.Tag.DESTROYER))
-          destroy();
       }
     });
 

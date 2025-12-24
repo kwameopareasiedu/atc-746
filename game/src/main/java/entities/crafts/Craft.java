@@ -28,6 +28,7 @@ public abstract class Craft extends Entity {
   private final Vector velocity = new Vector();
   private Animation waypointOpacityAnimation;
   private boolean tracingPath = false;
+  private boolean canFlip = true;
   private int waypointIndex = 0;
 
   public Craft(String name, Vector initialPosition, double initialHeading, Host host) {
@@ -36,6 +37,20 @@ public abstract class Craft extends Entity {
     this.initialPosition.set(initialPosition);
     desiredVelocity.set(Vector.from(getMoveSpeed(), initialHeading));
     velocity.set(desiredVelocity);
+  }
+
+  public void flipVelocity(Flip flip) {
+    if (canFlip) {
+      switch (flip) {
+        case VERTICAL -> desiredVelocity.setY(-desiredVelocity.y);
+        case HORIZONTAL -> desiredVelocity.setX(-desiredVelocity.x);
+      }
+
+      velocity.set(desiredVelocity);
+      canFlip = false;
+
+      Application.getInstance().scheduleTask(() -> canFlip = true, 350);
+    }
   }
 
   @Override
@@ -159,6 +174,8 @@ public abstract class Craft extends Entity {
   protected abstract double getMoveSpeed();
 
   protected abstract double getTurnSpeed();
+
+  public enum Flip {VERTICAL, HORIZONTAL}
 
   public interface Host {
     void onCraftNearMiss();
