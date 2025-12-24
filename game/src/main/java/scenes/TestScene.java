@@ -7,6 +7,7 @@ import dev.gamekit.core.Renderer;
 import dev.gamekit.core.Scene;
 import entities.Enclosure;
 import entities.crafts.Craft;
+import entities.crafts.Heli;
 import entities.crafts.Plane;
 
 import java.awt.*;
@@ -17,7 +18,7 @@ public class TestScene extends Scene implements Craft.Host {
   public TestScene() {
     super("Test Scene");
 
-    enclosure = new Enclosure(this, Plane::new);
+    enclosure = new Enclosure(this, Plane::new, Heli::new);
 
     RigidBody.DEBUG_DRAW = true;
     Collider.DEBUG_DRAW = true;

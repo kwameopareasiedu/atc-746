@@ -26,6 +26,7 @@ public abstract class Craft extends Entity {
   private final Vector desiredVelocity = new Vector();
   private final Vector initialPosition = new Vector();
   private final Vector velocity = new Vector();
+  private final Parameters parameters;
   private Animation waypointOpacityAnimation;
   private boolean tracingPath = false;
   private boolean canFlip = true;
@@ -35,7 +36,9 @@ public abstract class Craft extends Entity {
     super(name);
     this.host = host;
     this.initialPosition.set(initialPosition);
-    desiredVelocity.set(Vector.from(getMoveSpeed(), initialHeading));
+    this.parameters = getParameters();
+
+    desiredVelocity.set(Vector.from(parameters.moveSpeed, initialHeading));
     velocity.set(desiredVelocity);
   }
 
@@ -54,11 +57,11 @@ public abstract class Craft extends Entity {
   }
 
   @Override
-  protected final List<Component> getComponents() {
+  protected List<Component> getComponents() {
     RigidBody rb = new RigidBody();
     rb.setGravityScale(0);
 
-    CircleCollider proximitySensor = new CircleCollider(256);
+    CircleCollider proximitySensor = new CircleCollider(parameters.proximityRadius);
 
     proximitySensor.setOffset(0, -12);
     proximitySensor.setSensor(true);
@@ -72,7 +75,6 @@ public abstract class Craft extends Entity {
     });
 
     List<Component> components = new ArrayList<>();
-    setupAdditionalComponents(components);
     components.add(proximitySensor);
     components.add(rb);
 
@@ -90,8 +92,8 @@ public abstract class Craft extends Entity {
     Transform tx = findComponent(Transform.class);
     RigidBody rb = findComponent(RigidBody.class);
 
-    velocity.lerpAngle(desiredVelocity, getTurnSpeed());
-    rb.setLinearVelocity(velocity.x * getMoveSpeed(), velocity.y * getMoveSpeed());
+    velocity.lerpAngle(desiredVelocity, parameters.turnSpeed);
+    rb.setLinearVelocity(velocity.x * parameters.moveSpeed, velocity.y * parameters.moveSpeed);
     rb.setRotation(velocity.getAngle());
 
     if (waypointIndex < waypoints.size()) {
@@ -169,11 +171,20 @@ public abstract class Craft extends Entity {
     }
   }
 
-  protected void setupAdditionalComponents(List<Component> components) { /* No-op */ }
+  protected void configureCollider(Collider collider) {
+    collider.setSensor(true);
+    collider.setMetaData(Physic.Tag.CRAFT_BODY);
+    collider.setCollisionFilter(Physic.CategoryMask.CRAFT_BODY, Physic.CollisionMask.CRAFT_BODY);
+    collider.setCollisionListener(new Physics.CollisionListener() {
+      @Override
+      public void onCollisionEnter(Collider otherCollider) {
+        if (otherCollider.getMetaData().equals(Physic.Tag.CRAFT_BODY))
+          host.onCraftCrash();
+      }
+    });
+  }
 
-  protected abstract double getMoveSpeed();
-
-  protected abstract double getTurnSpeed();
+  protected abstract Parameters getParameters();
 
   public enum Flip {VERTICAL, HORIZONTAL}
 
@@ -182,4 +193,6 @@ public abstract class Craft extends Entity {
 
     void onCraftCrash();
   }
+
+  protected record Parameters(double moveSpeed, double turnSpeed, double proximityRadius) { }
 }
