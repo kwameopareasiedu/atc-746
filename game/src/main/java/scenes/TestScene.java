@@ -2,16 +2,12 @@ package scenes;
 
 import dev.gamekit.components.Collider;
 import dev.gamekit.components.RigidBody;
-import dev.gamekit.core.Application;
 import dev.gamekit.core.Renderer;
 import dev.gamekit.core.Scene;
 import dev.gamekit.utils.Vector;
 import entities.Enclosure;
-import entities.crafts.Craft;
-import entities.crafts.Heli;
-import entities.crafts.Jet;
-import entities.crafts.Plane;
-import entities.landing.*;
+import entities.crafts.*;
+import entities.landing.Blimpad;
 
 import java.awt.*;
 
@@ -32,11 +28,12 @@ public class TestScene extends Scene implements Craft.Host {
   @Override
   protected void start() {
     addChild(enclosure);
-    addChild(new Airstrip(new Vector(-256, 0), degToRad(30)));
-    addChild(new Jetstrip(new Vector(256, 0), degToRad(105)));
-    addChild(new Helipad(new Vector(), 0));
+    addChild(new Blimp(new Vector(), 0, this));
+//    addChild(new Airstrip(new Vector(-256, 0), degToRad(30)));
+//    addChild(new Jetstrip(new Vector(256, 0), degToRad(105)));
+//    addChild(new Helipad(new Vector(), 0));
     addChild(new Blimpad(new Vector(0, -256), degToRad(105)));
-    addChild(new Seaport(new Vector(0, 256), degToRad(30)));
+//    addChild(new Seaport(new Vector(0, 256), degToRad(30)));
 //    Application.getInstance().scheduleTask(() -> addChild(enclosure.spawnCraft()), 2500);
 //    Application.getInstance().scheduleTask(() -> addChild(enclosure.spawnCraft()), 3500);
 //    Application.getInstance().scheduleTask(() -> addChild(enclosure.spawnCraft()), 5000);

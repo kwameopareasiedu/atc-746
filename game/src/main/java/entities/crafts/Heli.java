@@ -28,10 +28,10 @@ public class Heli extends Craft implements VerticalLander {
 
     Sprite bodySprite = new Sprite(BODY_SPRITE);
     bodySprite.setWidth(36);
+    bodySprite.setCenter(0, -12);
     components.add(bodySprite);
 
     CircleCollider bodyCollider = new CircleCollider(36);
-    bodySprite.setCenter(0, -12);
     configureCollider(bodyCollider, otherCollider -> {
       if (otherCollider.getMetaData().equals(Physic.Tag.HELIPAD)) {
         land(Heli.this, (Pad) otherCollider.getEntity());

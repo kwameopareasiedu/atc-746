@@ -25,7 +25,7 @@ public interface RunwayLander {
     Vector otherHeading = Vector.from(1, otherTx.getGlobalRotation());
     double dotProduct = Vector.dot(thisHeading, otherHeading);
 
-    if (0.95 <= dotProduct && dotProduct <= 1 && !self.hasBeganLandingSequence()) {
+    if (0.925 <= dotProduct && dotProduct <= 1 && !self.hasBeganLandingSequence()) {
       List<Sprite> sprites = self.findComponents(Sprite.class);
       Animation fadeAnimation = new Animation(1000, Animation.RepeatMode.NONE, AnimationCurve.EASE_OUT_CUBIC);
 
