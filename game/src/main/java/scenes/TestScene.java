@@ -9,6 +9,7 @@ import entities.Enclosure;
 import entities.crafts.Craft;
 import entities.crafts.Heli;
 import entities.crafts.Plane;
+import entities.infra.Runway;
 
 import java.awt.*;
 
@@ -18,7 +19,7 @@ public class TestScene extends Scene implements Craft.Host {
   public TestScene() {
     super("Test Scene");
 
-    enclosure = new Enclosure(this, Plane::new, Heli::new);
+    enclosure = new Enclosure(this, Plane::new);
 
     RigidBody.DEBUG_DRAW = true;
     Collider.DEBUG_DRAW = true;
@@ -27,8 +28,9 @@ public class TestScene extends Scene implements Craft.Host {
   @Override
   protected void start() {
     addChild(enclosure);
+    addChild(new Runway());
     Application.getInstance().scheduleTask(() -> addChild(enclosure.spawnCraft()), 2500);
-    Application.getInstance().scheduleTask(() -> addChild(enclosure.spawnCraft()), 3500);
+//    Application.getInstance().scheduleTask(() -> addChild(enclosure.spawnCraft()), 3500);
   }
 
   @Override
@@ -44,5 +46,10 @@ public class TestScene extends Scene implements Craft.Host {
   @Override
   public void onCraftCrash() {
     logger.debug("Crafts crashed");
+  }
+
+  @Override
+  public void onCraftLanded() {
+    logger.debug("Crafts landed");
   }
 }

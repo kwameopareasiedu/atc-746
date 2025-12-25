@@ -5,11 +5,14 @@ import dev.gamekit.components.Sprite;
 import dev.gamekit.core.Component;
 import dev.gamekit.core.IO;
 import dev.gamekit.utils.Vector;
+import entities.behaviors.RunwayLander;
+import entities.infra.Runway;
+import utils.Physic;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-public class Plane extends Craft {
+public class Plane extends Craft implements RunwayLander {
   private static final BufferedImage SPRITE = IO.getResourceImage("plane.png");
 
   public Plane(Vector initialPosition, double initialHeading, Host host) {
@@ -21,16 +24,21 @@ public class Plane extends Craft {
     List<Component> components = super.getComponents();
 
     Sprite sprite = new Sprite(SPRITE);
-    BoxCollider bodyCollider = new BoxCollider(18, 72);
-    BoxCollider wingCollider = new BoxCollider(100, 14);
-
     sprite.setWidth(96);
-
-    configureCollider(bodyCollider);
-    configureCollider(wingCollider);
-
     components.add(sprite);
+
+    BoxCollider bodyCollider = new BoxCollider(18, 72);
+
+    configureCollider(bodyCollider, (otherCollider) -> {
+      if (otherCollider.getMetaData().equals(Physic.Tag.RUNWAY_STRIP)) {
+        land(Plane.this, (Runway) otherCollider.getEntity());
+      }
+    });
+
     components.add(bodyCollider);
+
+    BoxCollider wingCollider = new BoxCollider(100, 14);
+    configureCollider(wingCollider);
     components.add(wingCollider);
 
     return components;

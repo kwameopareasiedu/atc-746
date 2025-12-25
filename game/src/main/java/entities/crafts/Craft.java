@@ -8,6 +8,7 @@ import dev.gamekit.components.Transform;
 import dev.gamekit.core.*;
 import dev.gamekit.core.Component;
 import dev.gamekit.utils.Position;
+import dev.gamekit.utils.ValueCallback;
 import dev.gamekit.utils.Vector;
 import utils.Physic;
 
@@ -21,6 +22,7 @@ public abstract class Craft extends Entity {
   private static final double SQUARED_MIN_WAYPOINT_DISTANCE_THRESHOLD = 600;
 
   protected final Host host;
+  protected boolean beganLandingSequence = false;
 
   private final List<Vector> waypoints = new ArrayList<>();
   private final Vector desiredVelocity = new Vector();
@@ -56,13 +58,29 @@ public abstract class Craft extends Entity {
     }
   }
 
+  public Vector getLastWaypoint() {
+    if (waypoints.isEmpty()) return null;
+
+    return waypoints.get(waypoints.size() - 1);
+  }
+
+  public boolean hasBeganLandingSequence() {
+    return beganLandingSequence;
+  }
+
+  public void beginLandingSequence() {
+    beganLandingSequence = true;
+  }
+
   @Override
   protected List<Component> getComponents() {
+    List<Component> components = new ArrayList<>();
+
     RigidBody rb = new RigidBody();
     rb.setGravityScale(0);
+    components.add(rb);
 
     CircleCollider proximitySensor = new CircleCollider(parameters.proximityRadius);
-
     proximitySensor.setOffset(0, -12);
     proximitySensor.setSensor(true);
     proximitySensor.setMetaData(Physic.Tag.CRAFT_PROXIMITY);
@@ -73,10 +91,7 @@ public abstract class Craft extends Entity {
         host.onCraftNearMiss();
       }
     });
-
-    List<Component> components = new ArrayList<>();
     components.add(proximitySensor);
-    components.add(rb);
 
     return components;
   }
@@ -172,6 +187,10 @@ public abstract class Craft extends Entity {
   }
 
   protected void configureCollider(Collider collider) {
+    configureCollider(collider, null);
+  }
+
+  protected void configureCollider(Collider collider, ValueCallback<Collider> additionalActions) {
     collider.setSensor(true);
     collider.setMetaData(Physic.Tag.CRAFT_BODY);
     collider.setCollisionFilter(Physic.CategoryMask.CRAFT_BODY, Physic.CollisionMask.CRAFT_BODY);
@@ -180,6 +199,9 @@ public abstract class Craft extends Entity {
       public void onCollisionEnter(Collider otherCollider) {
         if (otherCollider.getMetaData().equals(Physic.Tag.CRAFT_BODY))
           host.onCraftCrash();
+
+        if (additionalActions != null)
+          additionalActions.update(otherCollider);
       }
     });
   }
@@ -192,6 +214,8 @@ public abstract class Craft extends Entity {
     void onCraftNearMiss();
 
     void onCraftCrash();
+
+    void onCraftLanded();
   }
 
   protected record Parameters(double moveSpeed, double turnSpeed, double proximityRadius) { }

@@ -16,7 +16,7 @@ public class Heli extends Craft {
   private static final BufferedImage BODY_SPRITE = IO.getResourceImage("heli_body.png");
 
   public Heli(Vector initialPosition, double initialHeading, Host host) {
-    super("Plane", initialPosition, initialHeading, host);
+    super("Heli", initialPosition, initialHeading, host);
   }
 
   @Override
@@ -24,14 +24,12 @@ public class Heli extends Craft {
     List<Component> components = super.getComponents();
 
     Sprite bodySprite = new Sprite(BODY_SPRITE);
-    CircleCollider bodyCollider = new CircleCollider(36);
-
-    bodySprite.setWidth(48);
-    bodySprite.setCenter(0, -12);
-
-    configureCollider(bodyCollider);
-
+    bodySprite.setWidth(36);
     components.add(bodySprite);
+
+    CircleCollider bodyCollider = new CircleCollider(36);
+    bodySprite.setCenter(0, -12);
+    configureCollider(bodyCollider);
     components.add(bodyCollider);
 
     return components;
@@ -39,6 +37,7 @@ public class Heli extends Craft {
 
   @Override
   protected void start() {
+    super.start();
     addChild(new Blades());
   }
 

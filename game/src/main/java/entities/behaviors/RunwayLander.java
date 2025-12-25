@@ -1,0 +1,45 @@
+package entities.behaviors;
+
+import dev.gamekit.animation.Animation;
+import dev.gamekit.components.RigidBody;
+import dev.gamekit.components.Sprite;
+import dev.gamekit.components.Transform;
+import dev.gamekit.utils.Vector;
+import entities.crafts.Craft;
+import entities.infra.Runway;
+
+import java.util.List;
+
+public interface RunwayLander {
+  default void land(Craft self, Runway runway) {
+    Vector lastWaypoint = self.getLastWaypoint();
+    if (lastWaypoint == null) return;
+
+    RigidBody otherRb = runway.findComponent(RigidBody.class);
+    if (!otherRb.containsPoint(lastWaypoint)) return;
+
+    Transform thisTx = self.findComponent(Transform.class);
+    Transform otherTx = runway.findComponent(Transform.class);
+    Vector thisHeading = Vector.from(1, thisTx.getGlobalRotation());
+    Vector otherHeading = Vector.from(1, otherTx.getGlobalRotation());
+    double dotProduct = Vector.dot(thisHeading, otherHeading);
+
+    if (0.95 <= dotProduct && dotProduct <= 1 && !self.hasBeganLandingSequence()) {
+      List<Sprite> sprites = self.findComponents(Sprite.class);
+      Animation fadeAnimation = new Animation(1000);
+
+      fadeAnimation.setValueListener(value -> {
+        for (Sprite spr : sprites)
+          spr.setOpacity(1.0 - value);
+      });
+
+      fadeAnimation.setStateListener(state -> {
+        if (state == Animation.State.STOPPED)
+          self.destroy();
+      });
+
+      fadeAnimation.start();
+      self.beginLandingSequence();
+    }
+  }
+}
