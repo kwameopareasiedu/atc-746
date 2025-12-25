@@ -7,7 +7,7 @@ import dev.gamekit.components.Sprite;
 import dev.gamekit.components.Transform;
 import dev.gamekit.utils.Vector;
 import entities.crafts.Craft;
-import entities.infra.Runway;
+import entities.landing.Runway;
 
 import java.util.List;
 

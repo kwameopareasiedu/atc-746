@@ -6,7 +6,7 @@ import dev.gamekit.core.Component;
 import dev.gamekit.core.IO;
 import dev.gamekit.utils.Vector;
 import entities.behaviors.RunwayLander;
-import entities.infra.Runway;
+import entities.landing.Runway;
 import utils.Physic;
 
 import java.awt.image.BufferedImage;
@@ -30,7 +30,7 @@ public class Jet extends Craft implements RunwayLander {
     BoxCollider bodyCollider = new BoxCollider(28, 72);
 
     configureCollider(bodyCollider, (otherCollider) -> {
-      if (otherCollider.getMetaData().equals(Physic.Tag.RUNWAY_STRIP)) {
+      if (otherCollider.getMetaData().equals(Physic.Tag.JETSTRIP)) {
         land(Jet.this, (Runway) otherCollider.getEntity());
       }
     });

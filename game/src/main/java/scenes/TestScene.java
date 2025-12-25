@@ -11,9 +11,12 @@ import entities.crafts.Craft;
 import entities.crafts.Heli;
 import entities.crafts.Jet;
 import entities.crafts.Plane;
-import entities.infra.Runway;
+import entities.landing.Airstrip;
+import entities.landing.Jetstrip;
 
 import java.awt.*;
+
+import static dev.gamekit.utils.Math.degToRad;
 
 public class TestScene extends Scene implements Craft.Host {
   private final Enclosure enclosure;
@@ -30,7 +33,8 @@ public class TestScene extends Scene implements Craft.Host {
   @Override
   protected void start() {
     addChild(enclosure);
-    addChild(new Runway());
+    addChild(new Airstrip(new Vector(-256, -10), degToRad(30)));
+    addChild(new Jetstrip(new Vector(256, -10), degToRad(105)));
     Application.getInstance().scheduleTask(() -> addChild(enclosure.spawnCraft()), 2500);
     Application.getInstance().scheduleTask(() -> addChild(enclosure.spawnCraft()), 3500);
     Application.getInstance().scheduleTask(() -> addChild(enclosure.spawnCraft()), 5000);
