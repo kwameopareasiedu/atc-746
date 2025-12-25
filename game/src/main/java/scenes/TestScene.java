@@ -5,9 +5,11 @@ import dev.gamekit.components.RigidBody;
 import dev.gamekit.core.Application;
 import dev.gamekit.core.Renderer;
 import dev.gamekit.core.Scene;
+import dev.gamekit.utils.Vector;
 import entities.Enclosure;
 import entities.crafts.Craft;
 import entities.crafts.Heli;
+import entities.crafts.Jet;
 import entities.crafts.Plane;
 import entities.infra.Runway;
 
@@ -19,7 +21,7 @@ public class TestScene extends Scene implements Craft.Host {
   public TestScene() {
     super("Test Scene");
 
-    enclosure = new Enclosure(this, Plane::new);
+    enclosure = new Enclosure(this, Plane::new, Heli::new, Jet::new);
 
     RigidBody.DEBUG_DRAW = true;
     Collider.DEBUG_DRAW = true;
@@ -30,7 +32,8 @@ public class TestScene extends Scene implements Craft.Host {
     addChild(enclosure);
     addChild(new Runway());
     Application.getInstance().scheduleTask(() -> addChild(enclosure.spawnCraft()), 2500);
-//    Application.getInstance().scheduleTask(() -> addChild(enclosure.spawnCraft()), 3500);
+    Application.getInstance().scheduleTask(() -> addChild(enclosure.spawnCraft()), 3500);
+    Application.getInstance().scheduleTask(() -> addChild(enclosure.spawnCraft()), 5000);
   }
 
   @Override

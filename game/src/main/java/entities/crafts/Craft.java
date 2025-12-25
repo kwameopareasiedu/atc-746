@@ -1,18 +1,17 @@
 package entities.crafts;
 
 import dev.gamekit.animation.Animation;
-import dev.gamekit.components.CircleCollider;
-import dev.gamekit.components.Collider;
-import dev.gamekit.components.RigidBody;
-import dev.gamekit.components.Transform;
+import dev.gamekit.components.*;
 import dev.gamekit.core.*;
 import dev.gamekit.core.Component;
+import dev.gamekit.utils.Math;
 import dev.gamekit.utils.Position;
 import dev.gamekit.utils.ValueCallback;
 import dev.gamekit.utils.Vector;
 import utils.Physic;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,10 +28,12 @@ public abstract class Craft extends Entity {
   private final Vector initialPosition = new Vector();
   private final Vector velocity = new Vector();
   private final Parameters parameters;
+  private final ProximityIndicator warningIndicator = new ProximityIndicator();
   private Animation waypointOpacityAnimation;
   private boolean tracingPath = false;
   private boolean canFlip = true;
   private int waypointIndex = 0;
+  private int proximityCount = 0;
 
   public Craft(String name, Vector initialPosition, double initialHeading, Host host) {
     super(name);
@@ -89,6 +90,19 @@ public abstract class Craft extends Entity {
       @Override
       public void onCollisionEnter(Collider otherCollider) {
         host.onCraftNearMiss();
+
+        if (proximityCount == 0)
+          addChild(warningIndicator);
+
+        proximityCount++;
+      }
+
+      @Override
+      public void onCollisionExit(Collider otherCollider) {
+        proximityCount--;
+
+        if (proximityCount <= 0)
+          removeChild(warningIndicator);
       }
     });
     components.add(proximitySensor);
@@ -219,4 +233,31 @@ public abstract class Craft extends Entity {
   }
 
   protected record Parameters(double moveSpeed, double turnSpeed, double proximityRadius) { }
+
+  private static class ProximityIndicator extends Entity {
+    private static final BufferedImage SPRITE = IO.getResourceImage("warning.png");
+    private static final double SPIN_SPEED = 0.015;
+
+    private double rotation;
+
+    public ProximityIndicator() {
+      super("Indicator");
+    }
+
+    @Override
+    protected List<Component> getComponents() {
+      Sprite sprite = new Sprite(SPRITE);
+
+      sprite.setWidth(160);
+
+      return List.of(sprite);
+    }
+
+    @Override
+    protected void update() {
+      Transform tx = findComponent(Transform.class);
+      rotation = (rotation + SPIN_SPEED) % Math.TWO_PI;
+      tx.setGlobalRotation(rotation);
+    }
+  }
 }

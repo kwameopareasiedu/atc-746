@@ -38,7 +38,7 @@ public class Heli extends Craft {
   @Override
   protected void start() {
     super.start();
-    addChild(new Blades());
+    addChild(new Rotor());
   }
 
   @Override
@@ -46,14 +46,14 @@ public class Heli extends Craft {
     return new Parameters(0.7, 0.025, 160);
   }
 
-  private static class Blades extends Entity {
+  private static class Rotor extends Entity {
     private static final BufferedImage BLADES_SPRITE = IO.getResourceImage("heli_blade.png");
     private static final double SPIN_SPEED = 0.035;
 
     private double rotation = 0;
 
-    public Blades() {
-      super("Helo Blades");
+    public Rotor() {
+      super("Rotor");
     }
 
     @Override

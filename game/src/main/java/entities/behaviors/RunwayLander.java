@@ -1,6 +1,7 @@
 package entities.behaviors;
 
 import dev.gamekit.animation.Animation;
+import dev.gamekit.animation.AnimationCurve;
 import dev.gamekit.components.RigidBody;
 import dev.gamekit.components.Sprite;
 import dev.gamekit.components.Transform;
@@ -26,7 +27,7 @@ public interface RunwayLander {
 
     if (0.95 <= dotProduct && dotProduct <= 1 && !self.hasBeganLandingSequence()) {
       List<Sprite> sprites = self.findComponents(Sprite.class);
-      Animation fadeAnimation = new Animation(1000);
+      Animation fadeAnimation = new Animation(1000, Animation.RepeatMode.NONE, AnimationCurve.EASE_OUT_CUBIC);
 
       fadeAnimation.setValueListener(value -> {
         for (Sprite spr : sprites)
