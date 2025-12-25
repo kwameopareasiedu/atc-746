@@ -8,11 +8,14 @@ import dev.gamekit.core.Entity;
 import dev.gamekit.core.IO;
 import dev.gamekit.utils.Math;
 import dev.gamekit.utils.Vector;
+import entities.behaviors.VerticalLander;
+import entities.landing.Pad;
+import utils.Physic;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-public class Heli extends Craft {
+public class Heli extends Craft implements VerticalLander {
   private static final BufferedImage BODY_SPRITE = IO.getResourceImage("heli_body.png");
 
   public Heli(Vector initialPosition, double initialHeading, Host host) {
@@ -29,7 +32,11 @@ public class Heli extends Craft {
 
     CircleCollider bodyCollider = new CircleCollider(36);
     bodySprite.setCenter(0, -12);
-    configureCollider(bodyCollider);
+    configureCollider(bodyCollider, otherCollider -> {
+      if (otherCollider.getMetaData().equals(Physic.Tag.HELIPAD)) {
+        land(Heli.this, (Pad) otherCollider.getEntity());
+      }
+    });
     components.add(bodyCollider);
 
     return components;

@@ -10,6 +10,7 @@ public class Physic {
     public static final String CRAFT_BODY = "craft-body";
     public static final String AIRSTRIP = "airstrip";
     public static final String JETSTRIP = "jetstrip";
+    public static final String HELIPAD = "helipad";
 
     private Tag() { }
   }
@@ -20,6 +21,7 @@ public class Physic {
     public static final int CRAFT_BODY = 4;
     public static final int AIRSTRIP = 8;
     public static final int JETSTRIP = 16;
+    public static final int HELIPAD = 32;
 
     private CategoryMask() { }
   }
@@ -32,9 +34,11 @@ public class Physic {
       | CategoryMask.CRAFT_PROXIMITY
       | CategoryMask.CRAFT_BODY
       | CategoryMask.AIRSTRIP
-      | CategoryMask.JETSTRIP;
+      | CategoryMask.JETSTRIP
+      | CategoryMask.HELIPAD;
     public static final int AIRSTRIP = CategoryMask.CRAFT_BODY;
     public static final int JETSTRIP = CategoryMask.CRAFT_BODY;
+    public static final int HELIPAD = CategoryMask.CRAFT_BODY;
 
     private CollisionMask() { }
   }

@@ -12,6 +12,7 @@ import entities.crafts.Heli;
 import entities.crafts.Jet;
 import entities.crafts.Plane;
 import entities.landing.Airstrip;
+import entities.landing.Helipad;
 import entities.landing.Jetstrip;
 
 import java.awt.*;
@@ -35,6 +36,7 @@ public class TestScene extends Scene implements Craft.Host {
     addChild(enclosure);
     addChild(new Airstrip(new Vector(-256, -10), degToRad(30)));
     addChild(new Jetstrip(new Vector(256, -10), degToRad(105)));
+    addChild(new Helipad(new Vector(), 0));
     Application.getInstance().scheduleTask(() -> addChild(enclosure.spawnCraft()), 2500);
     Application.getInstance().scheduleTask(() -> addChild(enclosure.spawnCraft()), 3500);
     Application.getInstance().scheduleTask(() -> addChild(enclosure.spawnCraft()), 5000);
