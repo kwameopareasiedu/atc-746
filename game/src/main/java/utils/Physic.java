@@ -10,7 +10,9 @@ public class Physic {
     public static final String CRAFT_BODY = "craft-body";
     public static final String AIRSTRIP = "airstrip";
     public static final String JETSTRIP = "jetstrip";
+    public static final String SEAPORT = "seaport";
     public static final String HELIPAD = "helipad";
+    public static final String BLIMPAD = "blimpad";
 
     private Tag() { }
   }
@@ -21,7 +23,9 @@ public class Physic {
     public static final int CRAFT_BODY = 4;
     public static final int AIRSTRIP = 8;
     public static final int JETSTRIP = 16;
-    public static final int HELIPAD = 32;
+    public static final int SEAPORT = 32;
+    public static final int HELIPAD = 64;
+    public static final int BLIMPAD = 128;
 
     private CategoryMask() { }
   }
@@ -31,14 +35,17 @@ public class Physic {
     public static final int CRAFT_PROXIMITY = CategoryMask.CRAFT_BODY;
     public static final int CRAFT_BODY =
       CategoryMask.ENCLOSURE_WALL
-      | CategoryMask.CRAFT_PROXIMITY
-      | CategoryMask.CRAFT_BODY
-      | CategoryMask.AIRSTRIP
-      | CategoryMask.JETSTRIP
-      | CategoryMask.HELIPAD;
+        | CategoryMask.CRAFT_PROXIMITY
+        | CategoryMask.CRAFT_BODY
+        | CategoryMask.AIRSTRIP
+        | CategoryMask.JETSTRIP
+        | CategoryMask.SEAPORT
+        | CategoryMask.BLIMPAD;
     public static final int AIRSTRIP = CategoryMask.CRAFT_BODY;
     public static final int JETSTRIP = CategoryMask.CRAFT_BODY;
+    public static final int SEAPORT = CategoryMask.CRAFT_BODY;
     public static final int HELIPAD = CategoryMask.CRAFT_BODY;
+    public static final int BLIMPAD = CategoryMask.CRAFT_BODY;
 
     private CollisionMask() { }
   }
