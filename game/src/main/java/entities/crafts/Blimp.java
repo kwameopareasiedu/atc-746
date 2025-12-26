@@ -25,7 +25,7 @@ public class Blimp extends Craft implements VerticalLander {
 
     Sprite bodySprite = new Sprite(BODY_SPRITE);
     bodySprite.setWidth(48);
-    bodySprite.setCenter(0, -12);
+    bodySprite.setOffset(0, -12);
     components.add(bodySprite);
 
     CircleCollider bodyCollider = new CircleCollider(36);

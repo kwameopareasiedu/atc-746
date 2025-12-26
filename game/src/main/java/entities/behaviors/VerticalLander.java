@@ -4,11 +4,9 @@ import dev.gamekit.animation.Animation;
 import dev.gamekit.animation.AnimationCurve;
 import dev.gamekit.components.RigidBody;
 import dev.gamekit.components.Sprite;
-import dev.gamekit.components.Transform;
 import dev.gamekit.utils.Vector;
 import entities.crafts.Craft;
 import entities.landing.Pad;
-import entities.landing.Runway;
 
 import java.util.List;
 
@@ -22,11 +20,14 @@ public interface VerticalLander {
 
     if (!self.hasBeganLandingSequence()) {
       List<Sprite> sprites = self.findComponents(Sprite.class);
-      Animation fadeAnimation = new Animation(1000, Animation.RepeatMode.NONE, AnimationCurve.EASE_OUT_CUBIC);
+      Animation fadeAnimation = new Animation(1250, Animation.RepeatMode.NONE, AnimationCurve.EASE_OUT_CUBIC);
 
       fadeAnimation.setValueListener(value -> {
-        for (Sprite spr : sprites)
-          spr.setOpacity(1.0 - value);
+        for (Sprite sprite : sprites) {
+          double scale = 1 - value * 0.5;
+          sprite.setOpacity(1.0 - value);
+          sprite.setScale(scale, scale);
+        }
       });
 
       fadeAnimation.setStateListener(state -> {

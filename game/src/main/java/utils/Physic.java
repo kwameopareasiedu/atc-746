@@ -40,6 +40,7 @@ public class Physic {
         | CategoryMask.AIRSTRIP
         | CategoryMask.JETSTRIP
         | CategoryMask.SEAPORT
+        | CategoryMask.HELIPAD
         | CategoryMask.BLIMPAD;
     public static final int AIRSTRIP = CategoryMask.CRAFT_BODY;
     public static final int JETSTRIP = CategoryMask.CRAFT_BODY;

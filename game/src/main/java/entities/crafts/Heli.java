@@ -28,7 +28,7 @@ public class Heli extends Craft implements VerticalLander {
 
     Sprite bodySprite = new Sprite(BODY_SPRITE);
     bodySprite.setWidth(36);
-    bodySprite.setCenter(0, -12);
+    bodySprite.setOffset(0, -12);
     components.add(bodySprite);
 
     CircleCollider bodyCollider = new CircleCollider(36);
@@ -54,7 +54,7 @@ public class Heli extends Craft implements VerticalLander {
   }
 
   private static class Rotor extends Entity {
-    private static final BufferedImage BLADES_SPRITE = IO.getResourceImage("heli_blade.png");
+    private static final BufferedImage SPRITE = IO.getResourceImage("heli_blade.png");
     private static final double SPIN_SPEED = 0.035;
 
     private double rotation = 0;
@@ -65,7 +65,7 @@ public class Heli extends Craft implements VerticalLander {
 
     @Override
     protected List<Component> getComponents() {
-      Sprite bladesSprite = new Sprite(BLADES_SPRITE);
+      Sprite bladesSprite = new Sprite(SPRITE);
 
       bladesSprite.setWidth(128);
 

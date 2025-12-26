@@ -1,6 +1,5 @@
 package entities.landing;
 
-import dev.gamekit.components.BoxCollider;
 import dev.gamekit.components.CircleCollider;
 import dev.gamekit.components.RigidBody;
 import dev.gamekit.components.Sprite;
