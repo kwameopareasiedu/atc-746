@@ -7,6 +7,7 @@ import dev.gamekit.core.Renderer;
 import dev.gamekit.core.Scene;
 import dev.gamekit.utils.Vector;
 import entities.Enclosure;
+import entities.Explosion;
 import entities.crafts.*;
 import entities.landing.*;
 
@@ -52,8 +53,11 @@ public class TestScene extends Scene implements Craft.Host {
   }
 
   @Override
-  public void onCraftCrash() {
+  public void onCraftCrash(Vector location) {
     logger.debug("Crafts crashed");
+    Craft.ENABLED = false;
+
+    addChild(new Explosion(location));
   }
 
   @Override

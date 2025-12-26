@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Craft extends Entity {
-  public static boolean TRACING_ENABLED = true;
+  public static boolean ENABLED = true;
   private static final double SQUARED_WAYPOINT_MARK_THRESHOLD = 256;
   private static final double SQUARED_MIN_WAYPOINT_DISTANCE_THRESHOLD = 600;
 
@@ -121,6 +121,11 @@ public abstract class Craft extends Entity {
     Transform tx = findComponent(Transform.class);
     RigidBody rb = findComponent(RigidBody.class);
 
+    if (!ENABLED) {
+      rb.setLinearVelocity(0, 0);
+      return;
+    }
+
     velocity.lerpAngle(desiredVelocity, parameters.turnSpeed);
     rb.setLinearVelocity(velocity.x * parameters.moveSpeed, velocity.y * parameters.moveSpeed);
     rb.setRotation(velocity.getAngle());
@@ -150,7 +155,7 @@ public abstract class Craft extends Entity {
       }
     }
 
-    if (Input.isButtonDown(Input.BUTTON_LMB) && TRACING_ENABLED) {
+    if (Input.isButtonDown(Input.BUTTON_LMB)) {
       Position mousePos = Input.getMousePosition();
       Vector pos = Camera.screenToWorldPosition(mousePos.x, mousePos.y);
 
@@ -162,7 +167,7 @@ public abstract class Craft extends Entity {
       }
     }
 
-    if (Input.isButtonPressed(Input.BUTTON_LMB) && TRACING_ENABLED && tracingPath && !waypoints.isEmpty()) {
+    if (Input.isButtonPressed(Input.BUTTON_LMB) && tracingPath && !waypoints.isEmpty()) {
       Vector lastPos = waypoints.get(waypoints.size() - 1);
 
       if (waypointOpacityAnimation != null && !waypointOpacityAnimation.isEnded())
@@ -211,8 +216,15 @@ public abstract class Craft extends Entity {
     collider.setCollisionListener(new Physics.CollisionListener() {
       @Override
       public void onCollisionEnter(Collider otherCollider) {
-        if (otherCollider.getMetaData().equals(Physic.Tag.CRAFT_BODY))
-          host.onCraftCrash();
+        if (otherCollider.getMetaData().equals(Physic.Tag.CRAFT_BODY)) {
+          Transform selfTx = findComponent(Transform.class);
+          Transform otherTx = otherCollider.getEntity().findComponent(Transform.class);
+          Vector crashLocation = new Vector(
+            0.5 * (selfTx.getGlobalPosition().x + otherTx.getGlobalPosition().x),
+            0.5 * (selfTx.getGlobalPosition().y + otherTx.getGlobalPosition().y)
+          );
+          host.onCraftCrash(crashLocation);
+        }
 
         if (additionalActions != null)
           additionalActions.update(otherCollider);
@@ -227,7 +239,7 @@ public abstract class Craft extends Entity {
   public interface Host {
     void onCraftNearMiss();
 
-    void onCraftCrash();
+    void onCraftCrash(Vector position);
 
     void onCraftLanded();
   }
