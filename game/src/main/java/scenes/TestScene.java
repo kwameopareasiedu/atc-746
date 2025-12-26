@@ -1,10 +1,15 @@
 package scenes;
 
+import dev.gamekit.animation.Animation;
+import dev.gamekit.animation.AnimationCurve;
 import dev.gamekit.components.Collider;
 import dev.gamekit.components.RigidBody;
 import dev.gamekit.core.Application;
+import dev.gamekit.core.IO;
 import dev.gamekit.core.Renderer;
 import dev.gamekit.core.Scene;
+import dev.gamekit.ui.widgets.*;
+import dev.gamekit.ui.widgets.Image;
 import dev.gamekit.utils.Vector;
 import entities.Enclosure;
 import entities.Explosion;
@@ -12,11 +17,15 @@ import entities.crafts.*;
 import entities.landing.*;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 import static dev.gamekit.utils.Math.degToRad;
 
 public class TestScene extends Scene implements Craft.Host {
+  private static final BufferedImage NEWSPAPER_IMG = IO.getResourceImage("newspaper.png");
+
   private final Enclosure enclosure;
+  private Animation newspaperAnimation;
 
   public TestScene() {
     super("Test Scene");
@@ -48,6 +57,35 @@ public class TestScene extends Scene implements Craft.Host {
   }
 
   @Override
+  protected Widget createUI() {
+    return Stack.create(
+      StackConfig.children(
+        Center.create(
+          newspaperAnimation != null ?
+            Rotated.create(
+              RotatedConfig.rotation(newspaperAnimation.getValue() * degToRad(1080)),
+              RotatedConfig.child(
+                Scaled.create(
+                  ScaledConfig.scale(Math.max(0.01, newspaperAnimation.getValue())),
+                  ScaledConfig.child(
+                    Opacity.create(
+                      OpacityConfig.opacity(newspaperAnimation.getValue()),
+                      OpacityConfig.child(
+                        Image.create(
+                          ImageConfig.image(NEWSPAPER_IMG)
+                        )
+                      )
+                    )
+                  )
+                )
+              )
+            ) : Empty.create()
+        )
+      )
+    );
+  }
+
+  @Override
   public void onCraftNearMiss() {
     logger.debug("Crafts missed nearly");
   }
@@ -58,6 +96,14 @@ public class TestScene extends Scene implements Craft.Host {
     Craft.ENABLED = false;
 
     addChild(new Explosion(location));
+
+    if (newspaperAnimation == null) {
+      Application.getInstance().scheduleTask(() -> {
+        newspaperAnimation = new Animation(1000, Animation.RepeatMode.NONE, AnimationCurve.EASE_OUT_SINE);
+        newspaperAnimation.setValueListener(value -> updateUI());
+        newspaperAnimation.start();
+      }, 1500);
+    }
   }
 
   @Override
