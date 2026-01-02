@@ -4,6 +4,7 @@ import dev.gamekit.components.BoxCollider;
 import dev.gamekit.components.Sprite;
 import dev.gamekit.core.Component;
 import dev.gamekit.core.IO;
+import dev.gamekit.settings.ImageInterpolation;
 import dev.gamekit.utils.Vector;
 import entities.behaviors.RunwayLander;
 import entities.landing.Runway;
@@ -23,7 +24,7 @@ public class Seaplane extends Craft implements RunwayLander {
   protected List<Component> getComponents() {
     List<Component> components = super.getComponents();
 
-    Sprite sprite = new Sprite(SPRITE);
+    Sprite sprite = new Sprite(SPRITE, ImageInterpolation.BICUBIC);
     sprite.setWidth(96);
     components.add(sprite);
 

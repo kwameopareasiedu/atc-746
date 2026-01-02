@@ -2,15 +2,16 @@ package scenes;
 
 import dev.gamekit.animation.Animation;
 import dev.gamekit.animation.AnimationCurve;
-import dev.gamekit.components.Collider;
-import dev.gamekit.components.RigidBody;
 import dev.gamekit.core.Application;
 import dev.gamekit.core.IO;
 import dev.gamekit.core.Renderer;
 import dev.gamekit.core.Scene;
+import dev.gamekit.ui.events.MouseEvent;
 import dev.gamekit.ui.widgets.*;
+import dev.gamekit.ui.widgets.Button;
 import dev.gamekit.ui.widgets.Image;
 import dev.gamekit.utils.Vector;
+import entities.Background;
 import entities.Enclosure;
 import entities.Explosion;
 import entities.crafts.*;
@@ -32,13 +33,15 @@ public class TestScene extends Scene implements Craft.Host {
 
     enclosure = new Enclosure(this, Plane::new, Heli::new, Jet::new, Seaplane::new, Blimp::new);
 
-    RigidBody.DEBUG_DRAW = true;
-    Collider.DEBUG_DRAW = true;
+//    RigidBody.DEBUG_DRAW = true;
+//    Collider.DEBUG_DRAW = true;
+    Craft.ENABLED = true;
   }
 
   @Override
   protected void start() {
     addChild(enclosure);
+    addChild(new Background());
     addChild(new Airstrip(new Vector(-256, 0), degToRad(30)));
     addChild(new Jetstrip(new Vector(256, 0), degToRad(105)));
     addChild(new Helipad(new Vector(), 0));
@@ -59,28 +62,40 @@ public class TestScene extends Scene implements Craft.Host {
   @Override
   protected Widget createUI() {
     return Stack.create(
-      StackConfig.children(
-        Center.create(
-          newspaperAnimation != null ?
-            Rotated.create(
-              RotatedConfig.rotation(newspaperAnimation.getValue() * degToRad(1080)),
-              RotatedConfig.child(
-                Scaled.create(
-                  ScaledConfig.scale(Math.max(0.01, newspaperAnimation.getValue())),
-                  ScaledConfig.child(
-                    Opacity.create(
-                      OpacityConfig.opacity(newspaperAnimation.getValue()),
-                      OpacityConfig.child(
-                        Image.create(
-                          ImageConfig.image(NEWSPAPER_IMG)
-                        )
-                      )
-                    )
-                  )
+      Center.create(
+        newspaperAnimation != null ?
+          Rotated.create(
+            newspaperAnimation.getValue() * degToRad(1080),
+            Scaled.create(
+              Math.max(0.01, newspaperAnimation.getValue()),
+              Opacity.create(
+                newspaperAnimation.getValue(),
+                Image.create(NEWSPAPER_IMG)
+              )
+            )
+          ) : Empty.create()
+      ),
+
+      Center.create(
+        newspaperAnimation != null ?
+          Padding.create(
+            600 + (int) (newspaperAnimation.getValue() * 45), 0, 0, 0,
+            Opacity.create(
+              newspaperAnimation.getValue(),
+              Button.create(
+                props -> {
+                  props.mouseListener = e -> {
+                    if (e.type == MouseEvent.Type.CLICK)
+                      Application.getInstance().loadScene(new TestScene());
+                  };
+                },
+                Padding.create(
+                  12, 12, 24, 12,
+                  Text.create("Continue")
                 )
               )
-            ) : Empty.create()
-        )
+            )
+          ) : Empty.create()
       )
     );
   }

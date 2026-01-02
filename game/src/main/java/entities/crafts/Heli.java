@@ -6,6 +6,7 @@ import dev.gamekit.components.Transform;
 import dev.gamekit.core.Component;
 import dev.gamekit.core.Entity;
 import dev.gamekit.core.IO;
+import dev.gamekit.settings.ImageInterpolation;
 import dev.gamekit.utils.Math;
 import dev.gamekit.utils.Vector;
 import entities.behaviors.VerticalLander;
@@ -26,7 +27,7 @@ public class Heli extends Craft implements VerticalLander {
   protected List<Component> getComponents() {
     List<Component> components = super.getComponents();
 
-    Sprite bodySprite = new Sprite(BODY_SPRITE);
+    Sprite bodySprite = new Sprite(BODY_SPRITE, ImageInterpolation.BICUBIC);
     bodySprite.setWidth(36);
     bodySprite.setOffset(0, -12);
     components.add(bodySprite);
@@ -65,7 +66,7 @@ public class Heli extends Craft implements VerticalLander {
 
     @Override
     protected List<Component> getComponents() {
-      Sprite bladesSprite = new Sprite(SPRITE);
+      Sprite bladesSprite = new Sprite(SPRITE, ImageInterpolation.BICUBIC);
 
       bladesSprite.setWidth(128);
 

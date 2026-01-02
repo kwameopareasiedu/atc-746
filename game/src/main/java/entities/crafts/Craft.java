@@ -48,8 +48,14 @@ public abstract class Craft extends Entity {
   public void flipVelocity(Flip flip) {
     if (canFlip) {
       switch (flip) {
-        case VERTICAL -> desiredVelocity.setY(-desiredVelocity.y);
-        case HORIZONTAL -> desiredVelocity.setX(-desiredVelocity.x);
+        case VERTICAL -> {
+          desiredVelocity.setY(-desiredVelocity.y);
+          velocity.setY(-velocity.y);
+        }
+        case HORIZONTAL -> {
+          desiredVelocity.setX(-desiredVelocity.x);
+          velocity.setX(-velocity.x);
+        }
       }
 
       velocity.set(desiredVelocity);

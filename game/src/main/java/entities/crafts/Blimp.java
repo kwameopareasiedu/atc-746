@@ -4,6 +4,7 @@ import dev.gamekit.components.CircleCollider;
 import dev.gamekit.components.Sprite;
 import dev.gamekit.core.Component;
 import dev.gamekit.core.IO;
+import dev.gamekit.settings.ImageInterpolation;
 import dev.gamekit.utils.Vector;
 import entities.behaviors.VerticalLander;
 import entities.landing.Pad;
@@ -23,7 +24,7 @@ public class Blimp extends Craft implements VerticalLander {
   protected List<Component> getComponents() {
     List<Component> components = super.getComponents();
 
-    Sprite bodySprite = new Sprite(BODY_SPRITE);
+    Sprite bodySprite = new Sprite(BODY_SPRITE, ImageInterpolation.BICUBIC);
     bodySprite.setWidth(48);
     bodySprite.setOffset(0, -12);
     components.add(bodySprite);

@@ -5,6 +5,7 @@ import dev.gamekit.components.RigidBody;
 import dev.gamekit.components.Sprite;
 import dev.gamekit.core.Component;
 import dev.gamekit.core.Entity;
+import dev.gamekit.settings.ImageInterpolation;
 import dev.gamekit.utils.Vector;
 
 import java.awt.image.BufferedImage;
@@ -29,7 +30,7 @@ public abstract class Pad extends Entity {
     RigidBody rb = new RigidBody();
     components.add(rb);
 
-    Sprite sprite = new Sprite(parameters.image);
+    Sprite sprite = new Sprite(parameters.image, ImageInterpolation.BICUBIC);
     sprite.setWidth(96);
     components.add(sprite);
 
