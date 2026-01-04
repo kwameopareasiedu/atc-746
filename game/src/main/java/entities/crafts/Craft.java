@@ -254,6 +254,10 @@ public abstract class Craft extends Entity {
     void onCraftLanded();
   }
 
+  public interface Creator {
+    Craft create(Vector initialPosition, double initialHeading, Host host);
+  }
+
   protected record Parameters(double moveSpeed, double turnSpeed, double proximityRadius) { }
 
   private static class ProximityIndicator extends Entity {

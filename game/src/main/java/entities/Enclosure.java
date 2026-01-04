@@ -22,10 +22,10 @@ public class Enclosure extends Entity {
 
   private final Craft.Host craftHost;
   private final Region[] spawnRegions;
-  private final Creator[] craftCreators;
+  private final Craft.Creator[] craftCreators;
   private final Random rnd = new Random();
 
-  public Enclosure(Craft.Host craftHost, Creator... craftCreators) {
+  public Enclosure(Craft.Host craftHost, Craft.Creator... craftCreators) {
     super("Enclosure");
     this.craftHost = craftHost;
     this.craftCreators = craftCreators;
@@ -43,7 +43,7 @@ public class Enclosure extends Entity {
   }
 
   public Craft spawnCraft() {
-    Enclosure.Creator craftCreator = craftCreators[rnd.nextInt(craftCreators.length)];
+    Craft.Creator craftCreator = craftCreators[rnd.nextInt(craftCreators.length)];
     Region spawnRegion = spawnRegions[rnd.nextInt(spawnRegions.length)];
     Region targetRegion = spawnRegions[spawnRegion.adjacentIdx];
 
@@ -152,10 +152,6 @@ public class Enclosure extends Entity {
       Renderer.drawRect((int) region.x, (int) region.y, (int) region.width, (int) region.height)
         .withColor(Color.WHITE);
     }
-  }
-
-  public interface Creator {
-    Craft create(Vector initialPosition, double initialHeading, Craft.Host host);
   }
 
   private static class Region extends Bounds {
