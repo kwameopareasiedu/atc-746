@@ -1,10 +1,9 @@
 package entities;
 
-import dev.gamekit.components.BoxCollider;
-import dev.gamekit.components.Collider;
-import dev.gamekit.components.RigidBody;
+import dev.gamekit.components.*;
 import dev.gamekit.core.*;
 import dev.gamekit.core.Component;
+import dev.gamekit.settings.ImageInterpolation;
 import dev.gamekit.settings.Resolution;
 import dev.gamekit.utils.Bounds;
 import dev.gamekit.utils.Vector;
@@ -12,12 +11,14 @@ import entities.crafts.Craft;
 import utils.Physic;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Random;
 
 public class Enclosure extends Entity {
   private static final double SPAWN_EDGE_OFFSET = 128;
   private static final double WALL_EDGE_OFFSET = 256;
+  private static final double INDICATOR_EDGE_OFFSET = -96;
 
   private final Craft.Host craftHost;
   private final Region[] spawnRegions;
@@ -57,6 +58,18 @@ public class Enclosure extends Entity {
     );
 
     double heading = Vector.angle(spawnPosition, targetPosition);
+
+    List<Physics.RaycastHit> hits =
+      Physics.raycast(spawnPosition, heading, 500, Physic.CategoryMask.ENCLOSURE_INDICATOR);
+
+    if (!hits.isEmpty()) {
+      Physics.RaycastHit hit = hits.get(0);
+      Indicator indicator = new Indicator();
+
+      indicator.findComponent(Transform.class).setGlobalPosition(hit.point().x, hit.point().y);
+      addChild(indicator);
+    }
+
     return craftCreator.create(spawnPosition, heading, craftHost);
   }
 
@@ -73,6 +86,8 @@ public class Enclosure extends Entity {
     BoxCollider rightWall = new BoxCollider(25, doubleHeight);
     BoxCollider bottomWall = new BoxCollider(doubleWidth, 25);
     BoxCollider leftWall = new BoxCollider(25, doubleHeight);
+    BoxCollider indicatorRegion = new BoxCollider(resolution.width() + INDICATOR_EDGE_OFFSET,
+      resolution.height() + INDICATOR_EDGE_OFFSET);
 
     topWall.setSensor(true);
     topWall.setOffset(0, halfHeight + WALL_EDGE_OFFSET);
@@ -122,7 +137,13 @@ public class Enclosure extends Entity {
       }
     });
 
-    return List.of(rb, topWall, rightWall, bottomWall, leftWall);
+    indicatorRegion.setSensor(true);
+    indicatorRegion.setCollisionFilter(
+      Physic.CategoryMask.ENCLOSURE_INDICATOR,
+      Physic.CollisionMask.ENCLOSURE_INDICATOR
+    );
+
+    return List.of(rb, topWall, rightWall, bottomWall, leftWall, indicatorRegion);
   }
 
   @Override
@@ -145,6 +166,27 @@ public class Enclosure extends Entity {
       super(x, y, width, height);
       this.idx = idx;
       this.adjacentIdx = adjacentIdx;
+    }
+  }
+
+  private static class Indicator extends Entity {
+    private static final BufferedImage SPRITE = IO.getResourceImage("incoming.png");
+
+    public Indicator() {
+      super("Indicator");
+    }
+
+    @Override
+    protected List<Component> getComponents() {
+      Sprite sprite = new Sprite(SPRITE, ImageInterpolation.BICUBIC);
+      sprite.setWidth(48);
+
+      return List.of(sprite);
+    }
+
+    @Override
+    protected void start() {
+      Application.getInstance().scheduleTask(this::destroy, 2000);
     }
   }
 }

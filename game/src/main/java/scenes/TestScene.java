@@ -40,8 +40,8 @@ public class TestScene extends Scene implements Craft.Host {
 
   @Override
   protected void start() {
-    addChild(enclosure);
     addChild(new Background());
+    addChild(enclosure);
     addChild(new Airstrip(new Vector(-256, 0), degToRad(30)));
     addChild(new Jetstrip(new Vector(256, 0), degToRad(105)));
     addChild(new Helipad(new Vector(), 0));

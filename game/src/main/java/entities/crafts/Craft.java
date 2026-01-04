@@ -223,13 +223,17 @@ public abstract class Craft extends Entity {
       @Override
       public void onCollisionEnter(Collider otherCollider) {
         if (otherCollider.getMetaData().equals(Physic.Tag.CRAFT_BODY)) {
-          Transform selfTx = findComponent(Transform.class);
-          Transform otherTx = otherCollider.getEntity().findComponent(Transform.class);
-          Vector crashLocation = new Vector(
-            0.5 * (selfTx.getGlobalPosition().x + otherTx.getGlobalPosition().x),
-            0.5 * (selfTx.getGlobalPosition().y + otherTx.getGlobalPosition().y)
-          );
-          host.onCraftCrash(crashLocation);
+          Craft otherCraft = (Craft) otherCollider.getEntity();
+
+          if (!otherCraft.hasBeganLandingSequence()) {
+            Transform selfTx = findComponent(Transform.class);
+            Transform otherTx = otherCollider.getEntity().findComponent(Transform.class);
+            Vector crashLocation = new Vector(
+              0.5 * (selfTx.getGlobalPosition().x + otherTx.getGlobalPosition().x),
+              0.5 * (selfTx.getGlobalPosition().y + otherTx.getGlobalPosition().y)
+            );
+            host.onCraftCrash(crashLocation);
+          }
         }
 
         if (additionalActions != null)
