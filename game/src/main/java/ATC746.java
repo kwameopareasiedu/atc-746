@@ -8,9 +8,9 @@ public class ATC746 extends Application {
       new Settings(
         "ATC 746",
         Resolution.FULL_HD,
-        Antialiasing.ON,
-        TextAntialiasing.ON,
-        RenderingStrategy.QUALITY,
+        Antialiasing.OFF,
+        TextAntialiasing.OFF,
+        RenderingStrategy.SPEED,
         WindowMode.BORDERLESS
       )
     );

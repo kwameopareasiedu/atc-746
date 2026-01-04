@@ -17,8 +17,8 @@ import java.util.List;
 
 public abstract class Craft extends Entity {
   public static boolean ENABLED = true;
-  private static final double SQUARED_WAYPOINT_MARK_THRESHOLD = 256;
-  private static final double SQUARED_MIN_WAYPOINT_DISTANCE_THRESHOLD = 600;
+  private static final double MIN_SQR_DISTANCE_FOR_WAYPOINT_MARK_THRESHOLD = 256;
+  private static final double MIN_SQR_DISTANCE_FOR_WAYPOINT_SWITCH_THRESHOLD = 600;
 
   protected final Host host;
   protected boolean beganLandingSequence = false;
@@ -140,7 +140,7 @@ public abstract class Craft extends Entity {
       Vector pos = tx.getGlobalPosition();
       Vector currentWaypoint = waypoints.get(waypointIndex);
 
-      if (Vector.squaredDistance(pos, currentWaypoint) <= SQUARED_MIN_WAYPOINT_DISTANCE_THRESHOLD) {
+      if (Vector.squaredDistance(pos, currentWaypoint) <= MIN_SQR_DISTANCE_FOR_WAYPOINT_SWITCH_THRESHOLD) {
         waypointIndex++;
 
         if (waypointIndex == waypoints.size()) {
@@ -165,7 +165,7 @@ public abstract class Craft extends Entity {
       Position mousePos = Input.getMousePosition();
       Vector pos = Camera.screenToWorldPosition(mousePos.x, mousePos.y);
 
-      if (rb.containsPoint(pos)) {
+      if (rb.containsPoint(pos, Physic.CategoryMask.CRAFT_BODY)) {
         waypoints.clear();
         waypoints.add(new Vector(pos));
         tracingPath = true;
@@ -185,7 +185,7 @@ public abstract class Craft extends Entity {
         Position mousePos = Input.getMousePosition();
         Vector pos = Camera.screenToWorldPosition(mousePos.x, mousePos.y);
 
-        if (Vector.squaredDistance(pos, lastPos) >= SQUARED_WAYPOINT_MARK_THRESHOLD) {
+        if (Vector.squaredDistance(pos, lastPos) >= MIN_SQR_DISTANCE_FOR_WAYPOINT_MARK_THRESHOLD) {
           waypoints.add(new Vector(pos));
         }
       }
@@ -225,7 +225,7 @@ public abstract class Craft extends Entity {
         if (otherCollider.getMetaData().equals(Physic.Tag.CRAFT_BODY)) {
           Craft otherCraft = (Craft) otherCollider.getEntity();
 
-          if (!otherCraft.hasBeganLandingSequence()) {
+          if (!hasBeganLandingSequence() && !otherCraft.hasBeganLandingSequence()) {
             Transform selfTx = findComponent(Transform.class);
             Transform otherTx = otherCollider.getEntity().findComponent(Transform.class);
             Vector crashLocation = new Vector(
