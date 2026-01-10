@@ -10,6 +10,7 @@ import dev.gamekit.settings.ImageInterpolation;
 import dev.gamekit.utils.Math;
 import dev.gamekit.utils.Vector;
 import entities.behaviors.VerticalLander;
+import entities.landing.Helipad;
 import entities.landing.Pad;
 import utils.Physic;
 
@@ -51,7 +52,7 @@ public class Heli extends Craft implements VerticalLander {
 
   @Override
   protected Parameters getParameters() {
-    return new Parameters(0.7, 0.025, 160);
+    return new Parameters(0.7, 0.025, 160, Helipad.class);
   }
 
   private static class Rotor extends Entity {

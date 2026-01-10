@@ -9,7 +9,7 @@ import static dev.gamekit.utils.Math.degToRad;
 
 public class TestScene extends Level {
   public TestScene() {
-    super("Test Scene", 5, 1500, 1000, Plane::new, Heli::new, Jet::new, Seaplane::new, Blimp::new);
+    super("Test Scene", 5, 1500, 1000, /*Plane::new,*/ Blimp::new/*, Jet::new, Seaplane::new, Blimp::new*/);
   }
 
   @Override

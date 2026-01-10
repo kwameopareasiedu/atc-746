@@ -7,6 +7,7 @@ import dev.gamekit.core.IO;
 import dev.gamekit.settings.ImageInterpolation;
 import dev.gamekit.utils.Vector;
 import entities.behaviors.RunwayLander;
+import entities.landing.Jetstrip;
 import entities.landing.Runway;
 import utils.Physic;
 
@@ -43,6 +44,6 @@ public class Jet extends Craft implements RunwayLander {
 
   @Override
   protected Parameters getParameters() {
-    return new Parameters(1.5, 0.05, 210);
+    return new Parameters(1.5, 0.05, 210, Jetstrip.class);
   }
 }

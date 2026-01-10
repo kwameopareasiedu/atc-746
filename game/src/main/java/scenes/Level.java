@@ -5,6 +5,7 @@ import dev.gamekit.animation.AnimationCurve;
 import dev.gamekit.core.Application;
 import dev.gamekit.core.IO;
 import dev.gamekit.core.Scene;
+import dev.gamekit.systems.signals.Signal;
 import dev.gamekit.ui.events.MouseEvent;
 import dev.gamekit.ui.widgets.*;
 import dev.gamekit.utils.Vector;
@@ -18,9 +19,11 @@ import static dev.gamekit.utils.Math.degToRad;
 
 public abstract class Level extends Scene implements Craft.Host {
   private static final BufferedImage NEWSPAPER_IMG = IO.getResourceImage("newspaper.png");
+  private static Level current;
 
   protected final Enclosure enclosure;
 
+  private final Signal<Class<?>> landingIndicatorSignal;
   private final Animation newspaperAnimation;
   private final Animation restartUiAnimation;
   private final int totalCrafts;
@@ -38,6 +41,8 @@ public abstract class Level extends Scene implements Craft.Host {
 
     enclosure = new Enclosure(this, craftCreators);
 
+    landingIndicatorSignal = new Signal<>();
+
     restartUiAnimation = new Animation(1000, Animation.RepeatMode.NONE, AnimationCurve.EASE_OUT_BOUNCE);
     restartUiAnimation.setValueListener(value -> updateUI());
 
@@ -53,9 +58,14 @@ public abstract class Level extends Scene implements Craft.Host {
     Craft.ENABLED = true;
   }
 
+  public static Signal<Class<?>> getLandingIndicatorSignal() {
+    return current.landingIndicatorSignal;
+  }
+
   @Override
   protected void start() {
     Application.getInstance().scheduleTask(this::spawnCraft, craftDelayMs);
+    Level.current = this;
   }
 
   @Override
@@ -119,6 +129,11 @@ public abstract class Level extends Scene implements Craft.Host {
     if (landedCrafts == totalCrafts) {
       // TODO: End level
     }
+  }
+
+  @Override
+  protected void dispose() {
+    Level.current = null;
   }
 
   private void spawnCraft() {

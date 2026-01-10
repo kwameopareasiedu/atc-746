@@ -7,6 +7,7 @@ import dev.gamekit.core.IO;
 import dev.gamekit.settings.ImageInterpolation;
 import dev.gamekit.utils.Vector;
 import entities.behaviors.VerticalLander;
+import entities.landing.Blimpad;
 import entities.landing.Pad;
 import utils.Physic;
 
@@ -43,6 +44,6 @@ public class Blimp extends Craft implements VerticalLander {
 
   @Override
   protected Parameters getParameters() {
-    return new Parameters(0.5, 0.015, 175);
+    return new Parameters(0.5, 0.015, 175, Blimpad.class);
   }
 }

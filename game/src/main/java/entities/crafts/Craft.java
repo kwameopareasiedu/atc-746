@@ -8,6 +8,7 @@ import dev.gamekit.utils.Math;
 import dev.gamekit.utils.Position;
 import dev.gamekit.utils.ValueCallback;
 import dev.gamekit.utils.Vector;
+import scenes.Level;
 import utils.Physic;
 
 import java.awt.*;
@@ -23,10 +24,10 @@ public abstract class Craft extends Entity {
   protected final Host host;
   protected boolean beganLandingSequence = false;
 
-  private final List<Vector> waypoints = new ArrayList<>();
-  private final Vector desiredVelocity = new Vector();
-  private final Vector initialPosition = new Vector();
-  private final Vector velocity = new Vector();
+  private final List<Vector> waypoints;
+  private final Vector desiredVelocity;
+  private final Vector initialPosition;
+  private final Vector velocity;
   private final Parameters parameters;
   private final ProximityIndicator warningIndicator = new ProximityIndicator();
   private Animation waypointOpacityAnimation;
@@ -38,11 +39,11 @@ public abstract class Craft extends Entity {
   public Craft(String name, Vector initialPosition, double initialHeading, Host host) {
     super(name);
     this.host = host;
-    this.initialPosition.set(initialPosition);
     this.parameters = getParameters();
-
-    desiredVelocity.set(Vector.from(parameters.moveSpeed, initialHeading));
-    velocity.set(desiredVelocity);
+    this.waypoints = new ArrayList<>();
+    this.desiredVelocity = new Vector(Vector.from(parameters.moveSpeed, initialHeading));
+    this.initialPosition = new Vector(initialPosition);
+    this.velocity = new Vector(desiredVelocity);
   }
 
   public void flipVelocity(Flip flip) {
@@ -77,6 +78,10 @@ public abstract class Craft extends Entity {
 
   public void beginLandingSequence() {
     beganLandingSequence = true;
+  }
+
+  public void notifyLanded() {
+    host.onCraftLanded();
   }
 
   @Override
@@ -170,6 +175,8 @@ public abstract class Craft extends Entity {
         waypoints.add(new Vector(pos));
         tracingPath = true;
         waypointIndex = 0;
+
+        Level.getLandingIndicatorSignal().emit(parameters.landingEntityClass);
       }
     }
 
@@ -193,6 +200,8 @@ public abstract class Craft extends Entity {
 
     if (Input.isButtonReleased(Input.BUTTON_LMB)) {
       tracingPath = false;
+
+      Level.getLandingIndicatorSignal().emit(null);
     }
   }
 
@@ -258,7 +267,12 @@ public abstract class Craft extends Entity {
     Craft create(Vector initialPosition, double initialHeading, Host host);
   }
 
-  protected record Parameters(double moveSpeed, double turnSpeed, double proximityRadius) { }
+  protected record Parameters(
+    double moveSpeed,
+    double turnSpeed,
+    double proximityRadius,
+    Class<?> landingEntityClass
+  ) { }
 
   private static class ProximityIndicator extends Entity {
     private static final BufferedImage SPRITE = IO.getResourceImage("warning.png");
@@ -267,7 +281,7 @@ public abstract class Craft extends Entity {
     private double rotation;
 
     public ProximityIndicator() {
-      super("Indicator");
+      super("Proximity Indicator");
     }
 
     @Override

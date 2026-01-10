@@ -8,6 +8,7 @@ import dev.gamekit.settings.ImageInterpolation;
 import dev.gamekit.utils.Vector;
 import entities.behaviors.RunwayLander;
 import entities.landing.Runway;
+import entities.landing.Seaport;
 import utils.Physic;
 
 import java.awt.image.BufferedImage;
@@ -43,6 +44,6 @@ public class Seaplane extends Craft implements RunwayLander {
 
   @Override
   protected Parameters getParameters() {
-    return new Parameters(0.9, 0.02, 180);
+    return new Parameters(0.9, 0.02, 180, Seaport.class);
   }
 }

@@ -1,12 +1,15 @@
 package entities.landing;
 
+import dev.gamekit.components.AnimatedSprite;
 import dev.gamekit.components.CircleCollider;
 import dev.gamekit.components.RigidBody;
 import dev.gamekit.components.Sprite;
 import dev.gamekit.core.Component;
 import dev.gamekit.core.Entity;
+import dev.gamekit.core.IO;
 import dev.gamekit.settings.ImageInterpolation;
 import dev.gamekit.utils.Vector;
+import scenes.Level;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -15,11 +18,13 @@ import java.util.List;
 public abstract class Pad extends Entity {
   private final Vector initialPosition;
   private final double initialRotation;
+  private final DirectionIndicator directionIndicator;
 
   public Pad(String name, Vector initialPosition, double initialRotation) {
     super(name);
     this.initialPosition = initialPosition;
     this.initialRotation = initialRotation;
+    directionIndicator = new DirectionIndicator();
   }
 
   @Override
@@ -47,9 +52,45 @@ public abstract class Pad extends Entity {
     RigidBody rb = findComponent(RigidBody.class);
     rb.setPosition(initialPosition.x, initialPosition.y);
     rb.setRotation(initialRotation);
+
+    Level.getLandingIndicatorSignal().subscribe(
+      getClass().getName() + "pad-landing-sub", val -> {
+        logger.debug("Clicked: {}, Class: {}", val, getClass());
+        if (val != null && val.equals(getClass())) {
+          addChild(directionIndicator);
+        } else {
+          removeChild(directionIndicator);
+        }
+      }, false
+    );
+  }
+
+  @Override
+  protected void dispose() {
+    Level.getLandingIndicatorSignal().unsubscribe(getClass().getName() + "pad-landing-sub");
   }
 
   protected abstract Parameters getParameters();
 
   protected record Parameters(BufferedImage image, String tag, int categoryMask, int collisionMask) { }
+
+  private static class DirectionIndicator extends Entity {
+    private static final BufferedImage SPRITE = IO.getResourceImage("pad_arrows_sheet.png");
+
+    public DirectionIndicator() {
+      super("Direction Indicator");
+    }
+
+    @Override
+    protected List<Component> getComponents() {
+      AnimatedSprite animatedSprite = new AnimatedSprite(
+        SPRITE, 240, 240, new int[]{ 0, 0, 240, 0, 480, 0, 720, 0 }, 750, true
+      );
+
+      animatedSprite.setSize(120, 120);
+      animatedSprite.setInterpolation(ImageInterpolation.BICUBIC);
+
+      return List.of(animatedSprite);
+    }
+  }
 }

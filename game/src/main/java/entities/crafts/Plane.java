@@ -7,6 +7,7 @@ import dev.gamekit.core.IO;
 import dev.gamekit.settings.ImageInterpolation;
 import dev.gamekit.utils.Vector;
 import entities.behaviors.RunwayLander;
+import entities.landing.Airstrip;
 import entities.landing.Runway;
 import utils.Physic;
 
@@ -47,6 +48,6 @@ public class Plane extends Craft implements RunwayLander {
 
   @Override
   protected Parameters getParameters() {
-    return new Parameters(1, 0.025, 192);
+    return new Parameters(1, 0.025, 192, Airstrip.class);
   }
 }

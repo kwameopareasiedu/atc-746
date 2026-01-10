@@ -31,8 +31,10 @@ public interface VerticalLander {
       });
 
       fadeAnimation.setStateListener(state -> {
-        if (state == Animation.State.STOPPED)
+        if (state == Animation.State.STOPPED) {
+          self.notifyLanded();
           self.destroy();
+        }
       });
 
       fadeAnimation.start();
