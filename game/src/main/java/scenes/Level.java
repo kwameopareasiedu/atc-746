@@ -53,6 +53,7 @@ public abstract class Level extends Scene implements Craft.Host {
     landingIndicatorSignal = new Signal<>();
 
     Craft.ENABLED = true;
+    Widget.DEBUG_DRAW = true;
   }
 
   public static Signal<Class<?>> getLandingIndicatorSignal() {
@@ -69,7 +70,10 @@ public abstract class Level extends Scene implements Craft.Host {
   @Override
   protected Widget createUI() {
     return Theme.create(
-      props -> props.textFont = DEFAULT_FONT,
+      props -> {
+        props.textFont = DEFAULT_FONT;
+        props.textFontHeightRatio = 0.75;
+      },
       Stack.create(
         state == State.FAILED
           ? LevelFailedPopup.create()
