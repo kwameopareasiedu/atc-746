@@ -27,8 +27,8 @@ public class LevelFailedPopup extends Compose {
     animation = new Animation(2500);
     animation.setValueListener(value -> updateUI());
 
-    newspaperSlice = new AnimationSlice(animation, AnimationCurve.EASE_OUT_SINE, 0, 0.5);
-    buttonSlice = new AnimationSlice(animation, AnimationCurve.EASE_OUT_BOUNCE, 0.75, 1);
+    newspaperSlice = new AnimationSlice(animation, AnimationCurve.EASE_OUT_SINE, 0, 1500);
+    buttonSlice = new AnimationSlice(animation, AnimationCurve.EASE_OUT_BOUNCE, 750, 1000);
   }
 
   public static LevelFailedPopup create() {

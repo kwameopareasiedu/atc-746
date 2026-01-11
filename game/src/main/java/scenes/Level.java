@@ -4,18 +4,25 @@ import dev.gamekit.audio.AudioClip2D;
 import dev.gamekit.audio.AudioGroup;
 import dev.gamekit.core.Application;
 import dev.gamekit.core.Audio;
+import dev.gamekit.core.IO;
 import dev.gamekit.core.Scene;
 import dev.gamekit.systems.signals.Signal;
 import dev.gamekit.ui.widgets.Empty;
 import dev.gamekit.ui.widgets.Stack;
+import dev.gamekit.ui.widgets.Theme;
 import dev.gamekit.ui.widgets.Widget;
 import dev.gamekit.utils.Vector;
 import entities.Enclosure;
 import entities.Explosion;
 import entities.crafts.Craft;
 import ui.LevelFailedPopup;
+import ui.LevelSuccessPopup;
+
+import java.awt.*;
 
 public abstract class Level extends Scene implements Craft.Host {
+  private static final Font DEFAULT_FONT = IO.getResourceFont("MontserratAlternates-Bold.otf");
+
   private static Level current;
 
   static {
@@ -61,8 +68,15 @@ public abstract class Level extends Scene implements Craft.Host {
 
   @Override
   protected Widget createUI() {
-    return Stack.create(
-      state == State.FAILED ? LevelFailedPopup.create() : Empty.create()
+    return Theme.create(
+      props -> props.textFont = DEFAULT_FONT,
+      Stack.create(
+        state == State.FAILED
+          ? LevelFailedPopup.create()
+          : state == State.SUCCESS
+          ? LevelSuccessPopup.create()
+          : Empty.create()
+      )
     );
   }
 
