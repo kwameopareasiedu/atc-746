@@ -1,34 +1,36 @@
 package scenes;
 
-import dev.gamekit.animation.Animation;
-import dev.gamekit.animation.AnimationCurve;
+import dev.gamekit.audio.AudioClip2D;
+import dev.gamekit.audio.AudioGroup;
 import dev.gamekit.core.Application;
-import dev.gamekit.core.IO;
+import dev.gamekit.core.Audio;
 import dev.gamekit.core.Scene;
 import dev.gamekit.systems.signals.Signal;
-import dev.gamekit.ui.events.MouseEvent;
-import dev.gamekit.ui.widgets.*;
+import dev.gamekit.ui.widgets.Empty;
+import dev.gamekit.ui.widgets.Stack;
+import dev.gamekit.ui.widgets.Widget;
 import dev.gamekit.utils.Vector;
 import entities.Enclosure;
 import entities.Explosion;
 import entities.crafts.Craft;
-
-import java.awt.image.BufferedImage;
-
-import static dev.gamekit.utils.Math.degToRad;
+import ui.LevelFailedPopup;
 
 public abstract class Level extends Scene implements Craft.Host {
-  private static final BufferedImage NEWSPAPER_IMG = IO.getResourceImage("newspaper.png");
   private static Level current;
 
-  protected final Enclosure enclosure;
+  static {
+    Audio.preload("bg", new AudioClip2D("gameplay_bg_music.wav", AudioGroup.MUSIC, 0.75));
+    Audio.preload("proximity", new AudioClip2D("proximity_sfx.wav", AudioGroup.EFFECTS, 1));
+    Audio.preload("landed", new AudioClip2D("landed_sfx.wav", AudioGroup.EFFECTS, 1));
+    Audio.preload("crash", new AudioClip2D("boom_sfx.wav", AudioGroup.EFFECTS, 1));
+  }
 
+  protected final Enclosure enclosure;
   private final Signal<Class<?>> landingIndicatorSignal;
-  private final Animation newspaperAnimation;
-  private final Animation restartUiAnimation;
   private final int totalCrafts;
   private final long craftDelayMs;
   private final long craftIntervalMs;
+  private State state = State.IN_PROGRESS;
   private int spawnedCrafts = 0;
   private int landedCrafts = 0;
 
@@ -43,18 +45,6 @@ public abstract class Level extends Scene implements Craft.Host {
 
     landingIndicatorSignal = new Signal<>();
 
-    restartUiAnimation = new Animation(1000, Animation.RepeatMode.NONE, AnimationCurve.EASE_OUT_BOUNCE);
-    restartUiAnimation.setValueListener(value -> updateUI());
-
-    newspaperAnimation = new Animation(1000, Animation.RepeatMode.NONE, AnimationCurve.EASE_OUT_SINE);
-    newspaperAnimation.setValueListener(value -> {
-      updateUI();
-
-      if (value > 0.85 && restartUiAnimation.getValue() == 0) {
-        restartUiAnimation.start();
-      }
-    });
-
     Craft.ENABLED = true;
   }
 
@@ -65,68 +55,41 @@ public abstract class Level extends Scene implements Craft.Host {
   @Override
   protected void start() {
     Application.getInstance().scheduleTask(this::spawnCraft, craftDelayMs);
+    Audio.get("bg").play(true);
     Level.current = this;
   }
 
   @Override
   protected Widget createUI() {
     return Stack.create(
-      Center.create(
-        newspaperAnimation != null ?
-          Rotated.create(
-            newspaperAnimation.getValue() * degToRad(1080),
-            Scaled.create(
-              Math.max(0.01, newspaperAnimation.getValue()),
-              Opacity.create(
-                newspaperAnimation.getValue(),
-                Image.create(NEWSPAPER_IMG)
-              )
-            )
-          ) : Empty.create()
-      ),
-
-      Center.create(
-        restartUiAnimation != null ?
-          Padding.create(
-            600 + (int) (restartUiAnimation.getValue() * 45), 0, 0, 0,
-            Opacity.create(
-              restartUiAnimation.getValue(),
-              Button.create(
-                props -> props.mouseListener = e -> {
-                  if (e.type == MouseEvent.Type.CLICK)
-                    Application.getInstance().loadScene(new TestScene());
-                },
-                Padding.create(
-                  12, 12, 24, 12,
-                  Text.create("Continue")
-                )
-              )
-            )
-          ) : Empty.create()
-      )
+      state == State.FAILED ? LevelFailedPopup.create() : Empty.create()
     );
   }
 
   @Override
   public void onCraftNearMiss() {
-    logger.debug("Crafts missed nearly");
+    Audio.get("proximity").play();
   }
 
   @Override
   public void onCraftCrash(Vector location) {
-    logger.debug("Crafts crashed");
-
     Craft.ENABLED = false;
+    Audio.get("crash").play();
     addChild(new Explosion(location));
-    Application.getInstance().scheduleTask(newspaperAnimation::start, 1500);
+
+    state = State.FAILED;
+    updateUI();
   }
 
   @Override
   public void onCraftLanded() {
-    logger.debug("Crafts landed");
     landedCrafts++;
+    Audio.get("landed").play();
 
     if (landedCrafts == totalCrafts) {
+      state = State.SUCCESS;
+      updateUI();
+
       // TODO: End level
     }
   }
@@ -134,6 +97,7 @@ public abstract class Level extends Scene implements Craft.Host {
   @Override
   protected void dispose() {
     Level.current = null;
+    Audio.get("bg").stop();
   }
 
   private void spawnCraft() {
@@ -143,5 +107,9 @@ public abstract class Level extends Scene implements Craft.Host {
     if (spawnedCrafts < totalCrafts) {
       Application.getInstance().scheduleTask(this::spawnCraft, craftIntervalMs);
     }
+  }
+
+  private enum State {
+    IN_PROGRESS, SUCCESS, FAILED
   }
 }
